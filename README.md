@@ -18,5 +18,6 @@ LP制作〜運用改善までの全工程をAIで自動化するハーネス製�
 
 ## 現在のステップ
 
-**Step 1: 知識の抽出と構造化（RAG → 原則カタログ）** — 監査人による Gemini への問い合わせ待ち。
+**Step 1: 知識の抽出と構造化（RAG → 原則カタログ）** — P1〜P3 受領済み。出典番号の対応表（S0）と P4〜P9 待ち。
+中間レビュー: [knowledge/review/step1-interim-P1-P3.md](knowledge/review/step1-interim-P1-P3.md)
 詳細は [docs/roadmap.md](docs/roadmap.md) を参照。
