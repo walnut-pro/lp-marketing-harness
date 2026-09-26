@@ -1,7 +1,7 @@
 # 自動生成: scripts/build_context.py。直接編集しないこと
 # severity: must = 必須（core） / should = 適用条件を満たす場合に必須（optional）
 # check_type: rule = 機械判定 / llm = LLM判定 / metric = 計測データ / process = 手順・記録
-version: '0.3'
+version: '0.4'
 items:
 - id: R-BASE-LP-FORMAT
   principle: BASE-LP-FORMAT
@@ -106,7 +106,7 @@ items:
 - id: R-FV-TOP-PRIORITY
   principle: FV-TOP-PRIORITY
   title: 改善はFVを最優先し、次に離脱が最も多い箇所（フォーム手前）に取り組む
-  check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか
+  check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか。離脱最大箇所をヒートマップで特定しているか
   check_type: process
   stages:
   - copy
@@ -196,7 +196,7 @@ items:
 - id: R-COPY-WHY-CHEAP
   principle: COPY-WHY-CHEAP
   title: 「高品質なのに安い理由」を仕組みで説明する
-  check: 価格優位を主張する場合、その理由が本文にあるか
+  check: 価格優位を主張する場合、その理由が本文にあるか。理由が Brief の事実と一致しているか
   check_type: llm
   stages:
   - copy

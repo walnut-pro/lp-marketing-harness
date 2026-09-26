@@ -21,7 +21,7 @@ LP制作〜運用改善までの全工程をAIで自動化するハーネス製�
 
 ## 現在のステップ
 
-**Step 1: 知識の抽出と構造化（RAG → 原則カタログ）** — 抽出（97件）→ 統合（原則27件）→ コンテキスト化が完了。次は Gemini への追加質問 Q1〜Q3（1d）。
+**Step 1: 知識の抽出と構造化（RAG → 原則カタログ）** — 抽出（97件）→ 統合（原則27件）→ コンテキスト化 → 追加質問 Q1〜Q3 の反映（カタログ v0.4：LP実例7件・コピー実例16件）が完了。次は欠落の補い方（D1）の判断と、原則ごとの監査人判定（1e）。
 まず読むもの: [knowledge/context/playbook.md](knowledge/context/playbook.md)
 判断待ちの一覧は [docs/roadmap.md](docs/roadmap.md#判断待ち監査人) を参照。
 詳細は [docs/roadmap.md](docs/roadmap.md) を参照。

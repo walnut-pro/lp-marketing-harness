@@ -37,6 +37,12 @@ STAGE_OF_PRINCIPLE = {  # playbook の見出し用（catalog の stage）
 CHECK_TYPE = {"rule": "機械判定", "llm": "LLM判定", "metric": "計測データで判定", "process": "手順・記録で判定"}
 CONFIDENCE = {"high": "高", "medium": "中", "low": "低"}
 GENERATED = "<!-- 自動生成: scripts/build_context.py。直接編集せず knowledge/principles/catalog.yaml を修正して再生成すること -->"
+# コピー実例の verdict をパック・プレイブックでの分類にまとめる
+VERDICT_GROUPS = [
+    ("good", "良い例・改善後", {"良い例", "改善後"}),
+    ("bad", "悪い例・改善前", {"悪い例", "改善前"}),
+    ("candidate", "候補（ABテストの案。勝ち負けは不明）", {"候補（結果不明）"}),
+]
 SOURCE_NOTE = "出典: Gemini Notebook「lp marketing harness」（売れるLPに関する動画群）から抽出した知識。監査人の判断により信頼済みデータとして扱う（ADR-0002）。"
 
 
@@ -69,6 +75,63 @@ def principle_block(p):
     return "\n".join(lines)
 
 
+def example_block(e):
+    lines = [f"### {e['id']}｜{e['name']}（{e['industry']}／{e['role']}）", "",
+             "- 話に出てきたセクション・要素:"]
+    lines += [f"  {i}. {s}" for i, s in enumerate(e["sections_in_order"], 1)]
+    lines.append("- 語られている点:")
+    lines += [f"  - {pt}" for pt in e["points"]]
+    lines.append(f"- ソースの発言: 「{e['quote']}」")
+    lines.append(f"- 関連: {', '.join(e['related'])}")
+    if e.get("caveats"):
+        lines.append("- 注意:")
+        lines += [f"  - {c}" for c in e["caveats"]]
+    return "\n".join(lines)
+
+
+def copy_line(c):
+    if c["kind"] == "FV画像":
+        head = f"- [画像の説明] {c['text']}（{c['product']}）"
+    elif c.get("normalized"):
+        head = f"- 「{c['normalized']}」（{c['kind']}／{c['product']}。字幕の原文は「{c['text']}」）"
+    else:
+        head = f"- 「{c['text']}」（{c['kind']}／{c['product']}）"
+    lines = [f"{head} {c['id']}", f"  - 理由: {c['why']}", f"  - 関連: {', '.join(c['related'])}"]
+    lines += [f"  - 注意: {cv}" for cv in c.get("caveats", [])]
+    return "\n".join(lines)
+
+
+def examples_section(stage, catalog):
+    exs = [e for e in catalog.get("examples", []) if stage in e["used_in"]]
+    if not exs:
+        return []
+    out = [f"## LP実例（{len(exs)}件）", "",
+           "ソースで紹介された実在のLP・サイト。構成と考え方の参考にする。",
+           "ソースはLP全体のセクション順を明言していない。「話に出てきたセクション・要素」は話に出たものを Gemini が上から順に並べたもので、全セクションではない。",
+           "「注意」に避ける例とあるものは真似ない。",
+           "商品名・人物・文章・数値（価格・件数・割引率）を生成物や目標値にそのまま使わない。", ""]
+    for e in exs:
+        out += [example_block(e), ""]
+    return out
+
+
+def copy_examples_section(stage, catalog):
+    cxs = [c for c in catalog.get("copy_examples", []) if stage in c["used_in"]]
+    if not cxs:
+        return []
+    out = [f"## コピー実例（{len(cxs)}件）", "",
+           "ソースに出てきたコピー・FV画像の実例（原文のまま。字幕の誤変換を直したものは原文を併記）。言い回しの手本ではなく、何が良い／悪いとされたかの判断材料にする。",
+           "「改善後」は改善で採用された案という意味で、単独で効果が検証されたとは限らない。",
+           "実例の文言・商品名・人物名・数値（割引率など）を生成物にそのまま使わない。価格・割引・根拠は Brief の事実に従う。", ""]
+    for _, label, verdicts in VERDICT_GROUPS:
+        group = [c for c in cxs if c["verdict"] in verdicts]
+        if group:
+            out += [f"### {label}（{len(group)}件）", ""]
+            out += [copy_line(c) for c in group]
+            out.append("")
+    return out
+
+
 def stage_pack(stage, catalog):
     name, purpose = STAGES[stage]
     ps = order([p for p in catalog["principles"] if stage in p["used_in"]])
@@ -96,6 +159,8 @@ def stage_pack(stage, catalog):
         out += [f"## 条件付き（{len(optional)}件）", ""]
         for p in optional:
             out += [principle_block(p), ""]
+    out += examples_section(stage, catalog)
+    out += copy_examples_section(stage, catalog)
     if gaps:
         out += ["## ソースに無いこと（推測で補わない）", ""]
         out += [f"- {g['id']}: {g['title']}" for g in gaps]
@@ -129,7 +194,8 @@ def playbook(catalog):
     ps = catalog["principles"]
     out = [GENERATED, "", "# 売れるLPプレイブック", "", SOURCE_NOTE,
            f"カタログ v{catalog['meta']['version']}：原則 {len(ps)} 件（必須 {sum(p['scope'] == 'core' for p in ps)}／条件付き "
-           f"{sum(p['scope'] == 'optional' for p in ps)}）、事例 {len(catalog['cases'])} 件、ソースに無いこと {len(catalog['gaps'])} 件。", "",
+           f"{sum(p['scope'] == 'optional' for p in ps)}）、事例 {len(catalog['cases'])} 件、LP実例 {len(catalog.get('examples', []))} 件、"
+           f"コピー実例 {len(catalog.get('copy_examples', []))} 件、ソースに無いこと {len(catalog['gaps'])} 件。", "",
            "## ひとことで言うと", ""]
     out += [f"{i}. {s}" for i, s in enumerate(catalog["summary"], 1)]
     out.append("")
@@ -152,11 +218,32 @@ def playbook(catalog):
     out += [f"- {c['summary']}（{c['id']}）" for c in catalog["cases"]]
     out.append("")
 
-    out += ["## ソースに無いこと", "", "ハーネスはこれらを推測で埋めず、補い方を監査人が決める（roadmap の D1）。", "",
-            "| ID | 内容 | 影響する工程 |", "|---|---|---|"]
+    out += ["## LP実例", "", "ソースで紹介された実在のLP・サイト（Q1）。リサーチ・戦略・構成の工程に渡す。", "",
+            "| ID | 実例 | 業種 | 位置づけ | 関連する原則 |", "|---|---|---|---|---|"]
+    for e in catalog.get("examples", []):
+        out.append(f"| {e['id']} | {e['name']} | {e['industry']} | {e['role']} | {', '.join(e['related'])} |")
+    out.append("")
+
+    out += ["## コピー実例", "", "ソースに出てきたコピー・FV画像（Q2、原文のまま）。コピー・審査の工程に渡す。", ""]
+    for _, label, verdicts in VERDICT_GROUPS:
+        group = [c for c in catalog.get("copy_examples", []) if c["verdict"] in verdicts]
+        if not group:
+            continue
+        out += [f"### {label}", ""]
+        for c in group:
+            text = f"[画像] {c['text']}" if c["kind"] == "FV画像" else f"「{c.get('normalized', c['text'])}」"
+            if c.get("normalized"):
+                text += f"（原文「{c['text']}」を表記修正）"
+            out.append(f"- {text}（{c['kind']}／{c['product']}／{c['id']}）— {c['why']}")
+        out.append("")
+
+    out += ["## ソースに無いこと", "", "ハーネスはこれらを推測で埋めず、補い方を監査人が決める（roadmap の D1）。",
+            "「Q3で確認」は、Gemini への追加質問 Q3 で「言及なし」と確認済みの項目。", "",
+            "| ID | 内容 | 影響する工程 | Q3で確認 |", "|---|---|---|---|"]
     for g in catalog["gaps"]:
         affects = "、".join(STAGES[s][0] for s in g.get("affects", [])) or "スコープ外"
-        out.append(f"| {g['id']} | {g['title']} | {affects} |")
+        confirmed = "、".join(g.get("confirmed_by", [])) or "－"
+        out.append(f"| {g['id']} | {g['title']} | {affects} | {confirmed} |")
     out.append("")
 
     out += ["## 参考（ハーネスの採点対象外）", ""]
@@ -170,16 +257,18 @@ def playbook(catalog):
 
 
 def readme(catalog):
-    counts = {s: sum(s in p["used_in"] for p in catalog["principles"]) for s in STAGES}
+    def count(section, s):
+        return sum(s in x["used_in"] for x in catalog.get(section, []))
     out = [GENERATED, "", "# knowledge/context — 使いやすいコンテキストデータ", "",
            "原則カタログ（`knowledge/principles/catalog.yaml`）から自動生成した、用途別のファイルです。", "",
            "| ファイル | 誰が使う | 用途 |", "|---|---|---|",
            "| [playbook.md](playbook.md) | 人（監査人・チーム） | 全体像を把握する。原則の判定に使う |",
            "| [stages/](stages/) | 工程エージェント（LLM） | 各工程のプロンプトに含める知識 |",
            "| [rubric.yaml](rubric.yaml) | 審査・運用の仕組み | 採点項目の一覧 |", "",
-           "## 工程別パック", "", "| 工程 | ファイル | 原則数 |", "|---|---|---|"]
+           "## 工程別パック", "", "| 工程 | ファイル | 原則数 | LP実例 | コピー実例 |", "|---|---|---|---|---|"]
     for s, (name, _) in STAGES.items():
-        out.append(f"| {name} | [stages/{s}.md](stages/{s}.md) | {counts[s]} |")
+        out.append(f"| {name} | [stages/{s}.md](stages/{s}.md) | {count('principles', s)} | "
+                   f"{count('examples', s)} | {count('copy_examples', s)} |")
     out += ["", "## 更新方法", "", "```",
             "# 1. knowledge/principles/catalog.yaml を編集",
             "python3 scripts/validate_catalog.py   # 2. 整合性チェック",

@@ -1,12 +1,14 @@
-# 原則カタログ v0.3 — 知識の唯一の正本（single source of truth）
+# 原則カタログ v0.4 — 知識の唯一の正本（single source of truth）
 #
 # このファイルを編集したら、次を実行して生成物を更新すること:
 #   python3 scripts/validate_catalog.py && python3 scripts/build_context.py
 # knowledge/context/ 以下は自動生成物。直接編集しない。
 #
 # 出典の扱い（ADR-0002）:
-#   監査人の判断により、Gemini Notebook の回答（knowledge/raw/P1〜P9）を信頼できるデータとして扱う。
+#   監査人の判断により、Gemini Notebook の回答（knowledge/raw/P1〜P9、Q1〜Q3）を信頼できるデータとして扱う。
 #   各原則の出典は merged_from（raw の ID）で辿る。Gemini の source 番号と timestamp は動画を特定できないため使わない。
+#   Q1〜Q3 の参照は「Q1#3」（ファイル内で n 番目の項目）の形で書く。Q1 末尾の2問は Q1#探し方・Q1#構成順。
+#   引用・例文は raw からコピーする。表記を直す場合は normalized に書き、原文と理由を audit_notes に残す（footguns F-18）。
 #
 # フィールド:
 #   stage       主に属する工程
@@ -17,16 +19,26 @@
 #   audit_notes 監査・保守用の記録。エージェントには渡さない
 #   confidence  high = 一般原則として繰り返し語られる / medium = 1事例から / low = Gemini の合成の比重が大きい
 #   status      draft / approved / rejected（監査人の判定）
+#
+# セクション:
+#   principles     原則（採点対象）
+#   examples       LP実例（Q1）。構成・考え方の参考として research / strategy / structure に渡す
+#   copy_examples  コピー実例（Q2）。text は原文のまま。verdict ごとに copy / review に渡す
+#   reference / cases / gaps / rejected
+#   gaps.confirmed_by  Q3 で「言及なし」と確認した項目
 
 meta:
-  version: '0.3'
+  version: '0.4'
   source_policy: trusted_gemini
   raw_items: 97
+  followup_items: 35
   merged_principles: 27
   reference_items: 8
   rejected_items: 1
   cases: 3
-  gaps: 12
+  examples: 7
+  copy_examples: 16
+  gaps: 13
 summary:
 - 売るのは縦長1ページのLP。良し悪しはCVRだけで判断し、主観を入れない。
 - ゼロから考えず、今売れている競合LPを複数集めて構成を真似し、それを上回る点を作る。
@@ -167,12 +179,14 @@ principles:
   - structure
   scope: core
   title: 今売れている競合LPを複数集めて構成を真似し、それを上回る
-  statement: 広告代理店への聞き取りや上場企業の通販LP（例：DUO）の調査で「今一番売れている商品」のLPを複数集め、構成を分析してその通りに作る。そのうえで初回割引・チャット窓口などの工夫で競合を上回る。ペルソナ設定やPASONAの法則などの理論には頼らない。
+  statement: 広告代理店への聞き取りや、上場企業の決算情報・企業分析（決算で情報が出やすい上場企業のうち、儲かっていそうな通販会社の商品を調べる。例：DUO）で「今一番売れている商品」のLPを複数集め、構成を分析してその通りに作る。そのうえで初回割引・チャット窓口などの工夫で競合を上回る。ペルソナ設定やPASONAの法則などの理論には頼らない。参考として、LPのCVRが最も高い業界は情報商材で、そのノウハウ（縦長LP、CVRを高めるオファーとライティング）を物販LPに応用して売れた例がある（すっきりフルーツ青汁）。
   rationale: 市場で結果が出ている構成を使う方が確実で速く、理論は現場で再現できないため。
   evidence:
   - 今一番売れている商品を広告代理店さんに聞いてください…その構成を分析してその通り作ってください
   - 売れてる上場企業のLPを真似します でより良いものを作ります
   - パソナの法則とかこのよくわかんないことをやらないです
+  - 決算とかで情報が出やすい上場企業で儲かってそうな通販会社の商品をリサーチする
+  - LPのコンバージョンレート（広告効率）が一番いい業界は情報商材
   applies_when: LPの初期構成を決めるとき
   anti_patterns:
   - 独自の発想だけで一から構成を作る
@@ -182,6 +196,7 @@ principles:
   check_type: process
   caveats:
   - '[RAG外] 真似るのは構成（セクションの種類と順番）と訴求の型まで。競合の文章・画像をそのまま使わない（著作権・不正競争）'
+  - '[RAG外] 情報商材LPは誇大表現や特商法トラブルが多いため、真似るのは構成・オファー設計の型までで、表現は真似ない'
   merged_from:
   - CORE-006
   - STR-001
@@ -189,10 +204,15 @@ principles:
   - STR-004
   - STRUC-002
   - COPY-006
+  - Q1#探し方
+  - Q1#6
+  - Q1#7
   confidence: high
   status: draft
   audit_notes:
   - 競合LPの自動取得には一般サイトへのネットワーク接続が必要（footguns F-10）。MVPは手動入力
+  - Q1 で探し方は「広告代理店に聞く」「企業分析・上場企業の決算情報を調べる」の2つと確認。Q1 の引用「事前に行政や企業分析をする」の「行政」は意味が通らず誤変換の可能性があるため、statement には入れていない
+  - 情報商材の話は Q1#6（すっきりフルーツ青汁）・Q1#7（情報商材のLP）から
 - id: STR-RELATIVE-ADVANTAGE
   stage: strategy
   used_in:
@@ -254,11 +274,12 @@ principles:
   anti_patterns:
   - FVを後回しにして本文ばかり作り込む
   - 離脱の少ない中盤やフッターから改修する
-  check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか
+  check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか。離脱最大箇所をヒートマップで特定しているか
   check_type: process
   merged_from:
   - FV-001
   - OPS-005
+  - Q3#10
   confidence: high
   status: draft
   audit_notes:
@@ -377,7 +398,7 @@ principles:
   - operate
   scope: core
   title: FVの画像とキャッチコピーは方向性の違う4パターンを作ってテストする
-  statement: FVのメイン画像（例：かわいい系・かっこいい系・起用人物の違い）とキャッチコピー（例：「真っ黒毛穴クレンジング」「黒い新しいクレンジング」）を、それぞれ方向性の異なる4パターン作り、同時に配信してCVRで選ぶ。
+  statement: FVのメイン画像（例：かわいい系・かっこいい系・起用人物の違い）とキャッチコピー（例：「真っ黒炭クレンジング」「黒い新しいクレンジング」）を、それぞれ方向性の異なる4パターン作り、同時に配信してCVRで選ぶ。
   rationale: どれが刺さるかは事前に判断できないため。
   evidence:
   - ファーストビューと言われる写真…大体4パターンで作るんですよね 違う方向性で
@@ -401,6 +422,9 @@ principles:
   - OPS-003
   confidence: high
   status: draft
+  audit_notes:
+  - statement の例「真っ黒炭クレンジング」は raw の「真っ黒隅クレンジング」（P3 FV-006・P5 COPY-001・Q2#10）の表記を直したもの。Q1#2・Q2#9 の「真っ黒の炭のクレンジング」から「隅」は「炭」の誤変換と判断
+  - v0.3 までは前任の責任者が raw に無い「真っ黒毛穴クレンジング」と書いていた（footguns F-18）
 - id: COPY-WARNING-EDUCATION
   stage: copy
   used_in:
@@ -437,8 +461,11 @@ principles:
   applies_when: 高品質かつ低価格を売りにする商材
   anti_patterns:
   - 結果だけ主張して理由を書かない
-  check: 価格優位を主張する場合、その理由が本文にあるか
+  check: 価格優位を主張する場合、その理由が本文にあるか。理由が Brief の事実と一致しているか
   check_type: llm
+  caveats:
+  - Brief に無い理由（素材・技術・仕組み）を作らない
+  - '[RAG外] 「圧倒的」「世界トップ」「最新」などの最上級・断定表現は客観的な根拠が必要（景表法の優良誤認）'
   merged_from:
   - COPY-009
   confidence: medium
@@ -634,13 +661,14 @@ principles:
   - operate
   scope: core
   title: 要素を1つずつ差し替えるテストを週単位で回し続け、勝ち要素を組み上げる
-  statement: 画像・キャッチコピーなど要素を分けて、1回のテストでは1要素だけ変える。週ごと、または一定販売数ごと（例：1000個）に判定し、勝った要素を組み合わせて「最強のLP」にしていく。CVRを0.1%単位で積み上げる。
+  statement: 画像・キャッチコピーなど要素を分けて、1回のテストでは1要素だけ変える。ヒートマップで滞在・離脱を分析し、写真→文章→サイト構成と細分化してテストする。週ごと、または一定販売数ごと（例：1000個）に判定し、勝った要素を組み合わせて「最強のLP」にしていく。CVRを0.1%単位で積み上げる。
   rationale: 一度作って終わりではなく、更新し続けることでCVRの高いLPになるため。全要素を一度に変えると何が効いたかわからなくなるため。
   evidence:
   - この週は画像をやりましょうでこの週は文字をやりましょうとか常にサイトのアップデートカスタマイズやってます 1週間ごとに
   - 1000個売れた時点で一番効率が良いところを採用しようとかそう言うの常やってました
   - cvrを本当に0.1%ずつ改善していって…今では当初の本当に何倍にもなっている
   - 何を一番使えばお客さんに響くか そのパズルが組み合わさった最強のサイトができます
+  - ヒート マップ って いう の が…分析 でき たり する ん です よ ね…一番 いい 写真 そして 一番 いい 文書 一番 いい じゃ サイト 構成 と いう ふう に どんどん どんどん 細分 化 して テスト する ん です よ
   applies_when: 公開後の運用全般
   anti_patterns:
   - 一度作ったLPを放置する
@@ -655,10 +683,12 @@ principles:
   - FV-007
   - OPS-004
   - OPS-009
+  - Q3#10
   confidence: high
   status: draft
   audit_notes:
-  - 判定の統計ルールはソースに無い。Step 8 で ADR 化（GAP-AB-STATS）
+  - 判定の統計ルールはソースに無い。Step 8 で ADR 化（GAP-AB-STATS）。Q3#11 で言及なしを確認
+  - Q3#10 の引用は分かち書きの自動字幕。evidence は原文のまま抜粋した。「た 機材 し てる」は「滞在している」の誤変換と判断し、statement では「滞在」と書いた
 - id: OPS-CAPACITY-CHECK
   stage: operation
   used_in:
@@ -701,10 +731,13 @@ principles:
   - 実際の構成は競合LPの分析（STR-IMITATE-WINNERS）で決める。このテンプレートは最低限の必須要素の確認に使う
   merged_from:
   - STRUC-TEMPLATE
+  - Q1#構成順
+  - Q1#4
   confidence: low
   status: draft
   audit_notes:
   - 'ソースが明示した推奨構成ではなく Gemini の合成（confidence: low）。お客様の声・FAQ・保証・CTA などはソースに無い（GAP-STRUCTURE）'
+  - Q1でセクション順の明言なしを確認。We Smile 改善後の例（FV→注意喚起→コスパの理由→4コマ→予約）と整合
 - id: STRUC-ARTICLE-LP
   stage: structure
   used_in:
@@ -801,6 +834,339 @@ cases:
   merged_from:
   - COPY-007
   - OPS-009
+examples:
+- id: EX-SL-SKIN-LOTION
+  name: SLスキンローション
+  industry: 化粧品・スキンケア
+  role: 改善前の悪い例
+  sections_in_order:
+  - トップページ（インフルエンサーコラボ等の掲載）
+  - クーポンコード入力欄
+  - 画面遷移・確認画面
+  - 複数プランの選択肢
+  points:
+  - 商品を知らない初見ユーザーにとって商品を買って何ができるか（効果効能）が伝わらない
+  - 注文までに3〜4クリック必要で顧客の離脱を招く
+  - クーポンコードの手入力が面倒で顧客が離脱する
+  - 画面遷移が多くページの読み込み待ち時間で離脱が発生する
+  - 複数の選択肢から選ばせるため顧客が迷って離脱する
+  - 27,000円の定価販売のみで割引がなく試すハードルが高い
+  quote: 正直話にならないレベル
+  raw: Q1#1
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - FV-BENEFIT-AT-GLANCE
+  - OFR-FEWEST-CLICKS
+  - OFR-NO-COUPON-INPUT
+  - OFR-SINGLE-OFFER
+  - OFR-TRIAL-PRICE
+  caveats:
+  - 避ける例。この要素・流れを真似ない
+- id: EX-DUO-LP
+  name: DUO（プレミアムアンチエイジング）
+  industry: 化粧品・クレンジング
+  role: 手本として紹介
+  sections_in_order:
+  - ファーストビュー（真っ黒の炭のクレンジング）
+  - 商品の使用イメージ動画（画面右下）
+  - 対話型チャットボット注文窓口（画面右下）
+  - お試し価格・初回割引オファー（定期便の初回半額等）
+  points:
+  - ファーストビューで何の商品で何が得られるかが一目で明確に伝わる
+  - 右下の動画により使用イメージが直感的に伝わる
+  - 右下のチャットボットにより1画面・対話形式でスムーズに注文が完了できる
+  - 初回半額などのお試し価格が設定されており購入ハードルが低い
+  quote: かなり割と最先端にいるんでいろんなことやってます
+  raw: Q1#2
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - STR-IMITATE-WINNERS
+  - FV-BENEFIT-AT-GLANCE
+  - DES-MOTION-FV
+  - OFR-CHATBOT
+  - OFR-TRIAL-PRICE
+- id: EX-DUO-BRAND-SITE
+  name: DUO ブランドサイト（オフィシャルサイト）
+  industry: 化粧品・クレンジング
+  role: 手本として紹介
+  sections_in_order:
+  - 企業PR・商品詳細説明・オフィシャル情報
+  points:
+  - 企業PRや商品説明のためのオフィシャルサイトとして機能している
+  - 注文までに複数クリックが必要で売れない構造のため販売用LPとは明確に切り離し広告を出さない
+  quote: あそこは売れないんであそこ広告が出しても効率悪いから出して意味ないんで出しません
+  raw: Q1#3
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - BASE-LP-FORMAT
+  caveats:
+  - 販売LPの構成の手本ではない。「ブランドサイトと販売LPを分け、広告は販売LPに送る」ことの例
+  audit_notes:
+  - raw の role は「手本として紹介」のまま。points の内容から、手本なのは分け方であり構成ではない
+- id: EX-WE-SMILE
+  name: We Smile
+  industry: 歯科・マウスピース矯正（ポータルサイト）
+  role: 改善後の例
+  sections_in_order:
+  - ファーストビュー（「矯正医を探す新しい形」、さこさんの画像等）
+  - 競合（ローコストマウスピース）に関する注意喚起・トラブル解説コンテンツ
+  - コスパと高品質の技術的理由（トップブランド・最新技術の活用）
+  - 予約フォーム直前の4コマ漫画
+  - 24時間ウェブ予約窓口
+  points:
+  - ファーストビューのキャッチコピーや画像をABテストして最適化しサイトの戦闘力を高めた
+  - 競合のトラブルや注意点を伝えることで信頼を獲得し問い合わせが激増した
+  - 最も離脱しやすい予約画面手前に4コマ漫画を配置して離脱を防いだ
+  - 1日128件の問い合わせを獲得し滞在時間が35%伸びた
+  quote: もうおそらく一目見ただけでかなり変わってることが確認できると思う
+  raw: Q1#4
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - STRUC-TEMPLATE-V0
+  - FV-FOUR-VARIANTS
+  - COPY-WARNING-EDUCATION
+  - COPY-WHY-CHEAP
+  - OFR-MANGA-BEFORE-FORM
+  - CASE-WARNING-CONTENT
+  caveats:
+  - '[RAG外] 実在人物の画像は契約済み素材に限る。AI生成で似せない'
+  audit_notes:
+  - FVの人物（さこさん）は実在の芸能人（footguns F-21）
+- id: EX-LOW-COST-MOUTHPIECE
+  name: ローコストマウスピースメーカー
+  industry: 歯科・マウスピース矯正
+  role: 競合として紹介
+  sections_in_order:
+  - キャッチコピー（「前歯だけ直せます」「通院不要」）
+  points:
+  - 安易な訴求で集客するがアメリカ等でトラブルや被害が多発し倒産した手法である
+  - 顧客のトラブルや不利益につながる売り方である
+  quote: 被害とかがすごく出てきて全部倒産しちゃったアメリカの方で
+  raw: Q1#5
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - COPY-WARNING-EDUCATION
+  caveats:
+  - 避ける例。訴求を真似ない。注意喚起（COPY-WARNING-EDUCATION）の題材としてのみ使い、企業名は出さない
+- id: EX-SUKKIRI-AOJIRU
+  name: すっきりフルーツ青汁
+  industry: 健康食品・青汁
+  role: 手本として紹介
+  sections_in_order:
+  - 縦長のLP構成
+  - クラウドワークスのコンペで選んだ優秀なデザイナーによるデザイン
+  points:
+  - 情報商材のノウハウを応用した縦長LPで高いCVRを実現し爆発的に売れた
+  - 制作会社に丸投げせずクラウドワークスのコンペ等で一番優秀なデザイナーを選定して作成した
+  quote: 縦長のページあれで売りますそれが基本ですね
+  raw: Q1#6
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - BASE-LP-FORMAT
+  - STR-IMITATE-WINNERS
+  - REF-INHOUSE
+- id: EX-INFO-PRODUCT-LP
+  name: 情報商材のLP
+  industry: 情報コンテンツ・教育
+  role: 手本として紹介
+  sections_in_order:
+  - 縦長LP構成
+  - CVRを高めるオファーとライティング
+  points:
+  - CVR（コンバージョンレート）を引き上げるマーケティング手法において日本最先端のノウハウを持つ
+  - 正しい方向に応用することで物販等のLPでも高い効果を発揮する
+  quote: LPのコンバージョンレート（広告効率）が一番いい業界は情報商材
+  raw: Q1#7
+  used_in:
+  - research
+  - strategy
+  - structure
+  related:
+  - STR-IMITATE-WINNERS
+  caveats:
+  - '[RAG外] 情報商材LPは誇大表現や特商法トラブルが多いため、真似るのは構成・オファー設計の型までで、表現は真似ない'
+copy_examples:
+- id: CX-01
+  text: 矯正医を探す新しい形
+  kind: キャッチコピー
+  product: We Smile
+  verdict: 改善後
+  why: ファーストビューで一目見た時にサービスの価値を伝え、成約率を高めるためのABテスト用コピーとして作成されたため。
+  raw: Q2#1
+  used_in: [copy, review]
+  related: [FV-BENEFIT-AT-GLANCE, FV-FOUR-VARIANTS]
+- id: CX-02
+  text: We Smileが実現する圧倒的なコスパと高品質 その秘密は矯正器具世界トップブランドと治療期間を短縮し従来よりも負担を軽減する最新技術を活用していることです
+  kind: 本文
+  product: We Smile
+  verdict: 良い例
+  why: なぜ高品質なのに低価格で提供できるのかという技術的背景や仕組みの理由を具体的に説明し、顧客に納得感と信頼を与えるため。
+  raw: Q2#2
+  used_in: [copy, review]
+  related: [COPY-WHY-CHEAP]
+  caveats:
+  - 手本は「理由を仕組みで説明する」構造。「圧倒的」「世界トップブランド」「最新技術」は We Smile の事実であり、Brief の根拠なしに使わない
+- id: CX-03
+  text: 前歯だけ直せます
+  kind: キャッチコピー
+  product: マウスピース矯正（競合のローコストマウスピース）
+  verdict: 悪い例
+  why: 安易な訴求で集客するローコストサービスであり、後にアメリカ等でトラブルや被害が多く出て全社倒産したような手法であるため。
+  raw: Q2#3
+  used_in: [copy, review]
+  related: [COPY-WARNING-EDUCATION]
+- id: CX-04
+  text: 通院不要
+  kind: キャッチコピー
+  product: マウスピース矯正（競合のローコストマウスピース）
+  verdict: 悪い例
+  why: 顧客のトラブルや被害につながる安易な売り方であり、信頼性を失うため。
+  raw: Q2#4
+  used_in: [copy, review]
+  related: [COPY-WARNING-EDUCATION]
+- id: CX-05
+  text: 右側にさこさんがいる画像
+  kind: FV画像
+  product: We Smile
+  verdict: 改善後
+  why: 最強のファーストビューを作るために実施したABテストの勝者パターンとして採用されたビジュアルであるため。
+  raw: Q2#5
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS]
+  caveats:
+  - '[RAG外] 実在人物の画像は契約済み素材に限る。AI生成で似せない'
+  audit_notes:
+  - 実在の芸能人（footguns F-21）
+- id: CX-06
+  text: ヒカルさんの画像
+  kind: FV画像
+  product: We Smile
+  verdict: 候補（結果不明）
+  why: 誰の画像を使った時に一番コンバージョンレート（CVR）が高いかを見極めるABテストの検証パターン（芸能人・著名人枠）として用意されたため。
+  raw: Q2#6
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS]
+  caveats:
+  - '[RAG外] 実在人物の画像は契約済み素材に限る。AI生成で似せない'
+  audit_notes:
+  - 実在の芸能人（footguns F-21）
+- id: CX-07
+  text: 朝倉みくるさんの画像
+  kind: FV画像
+  product: We Smile
+  verdict: 候補（結果不明）
+  why: どの画像が最も成果を出すかをテストし、サイトの戦闘力を高めるための検証パターンであるため。
+  raw: Q2#7
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS]
+  caveats:
+  - '[RAG外] 実在人物の画像は契約済み素材に限る。AI生成で似せない'
+  audit_notes:
+  - 実在の芸能人（footguns F-21）
+- id: CX-08
+  text: 24時間ウェブ予約
+  kind: CTA
+  product: We Smile
+  verdict: 改善後
+  why: 最も顧客が離脱（カゴ落ち）しやすい予約画面付近において、4コマ漫画などとともに配置し離脱を防ぐため。
+  raw: Q2#8
+  used_in: [copy, review]
+  related: [OFR-MANGA-BEFORE-FORM, FV-TOP-PRIORITY]
+- id: CX-09
+  text: 真っ黒の炭のクレンジング
+  kind: 見出し
+  product: DUO（プレミアムアンチエイジング）
+  verdict: 良い例
+  why: ファーストビューで一目見た時に何の商品であるかが明確に伝わり、分かりやすいため。
+  raw: Q2#9
+  used_in: [copy, review]
+  related: [FV-BENEFIT-AT-GLANCE]
+- id: CX-10
+  text: 真っ黒隅クレンジング
+  normalized: 真っ黒炭クレンジング
+  kind: キャッチコピー
+  product: DUO（クレンジングバーム）
+  verdict: 候補（結果不明）
+  why: ファーストビューのコピーとしてどれが最も成約率が高いかを競うABテストの原稿案であるため。
+  raw: Q2#10
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS]
+  audit_notes:
+  - 原文「真っ黒隅クレンジング」。Q1#2・Q2#9 の「真っ黒の炭のクレンジング」から「隅」は「炭」の自動字幕の誤変換と判断し、normalized を「真っ黒炭クレンジング」とした
+- id: CX-11
+  text: 黒い新しいクレンジング
+  kind: キャッチコピー
+  product: DUO（クレンジングバーム）
+  verdict: 候補（結果不明）
+  why: 主観を排除し、成約率が高い言葉を数値ベースで選定するためのテスト原稿案であるため。
+  raw: Q2#11
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS, BASE-DATA-OVER-TASTE]
+- id: CX-12
+  text: 初回半額
+  kind: 見出し
+  product: 単品リピート通販・コスメ商品全般
+  verdict: 良い例
+  why: 初めて購入する顧客にとって高額な定価は敷居が高いため、お試し価格で手にとりやすくしてリピートに繋げるため。
+  raw: Q2#12
+  used_in: [copy, review]
+  related: [OFR-TRIAL-PRICE]
+  caveats:
+  - '[RAG外] 定期購入が条件の場合は、その条件（支払総額・回数・解約条件）を「初回半額」と同じくらい分かりやすく表示する'
+- id: CX-13
+  text: 右下に配置された商品の使用イメージ動画
+  kind: FV画像
+  product: DUO（プレミアムアンチエイジング）
+  verdict: 良い例
+  why: 商品を使うことで何が得られるかを一目でわかりやすく理解させられるため。
+  raw: Q2#13
+  used_in: [copy, review]
+  related: [DES-MOTION-FV, FV-BENEFIT-AT-GLANCE]
+- id: CX-14
+  text: 日本産のNMNを使用・製造も日本
+  kind: 訴求文
+  product: エウレア（EUREA / エウレケア）
+  verdict: 改善前
+  why: NMNの認知度がまだ低いため、成分や原産地をアピールしても「この商品を買って何ができるか」が伝わらず購入されないため。
+  raw: Q2#14
+  used_in: [copy, review]
+  related: [FV-NO-JARGON, FV-BENEFIT-AT-GLANCE]
+- id: CX-15
+  text: 1パターン目は可愛い系の画像
+  kind: FV画像
+  product: D2C・EC通販商品全般
+  verdict: 候補（結果不明）
+  why: 自分の主観を一切入れず、成約率（CVR）が一番良い画像を数値ベースで機械的に選ぶためのABテスト用パターンであるため。
+  raw: Q2#15
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS, BASE-DATA-OVER-TASTE]
+- id: CX-16
+  text: 2パターン目はカッコいい系の画像
+  kind: FV画像
+  product: D2C・EC通販商品全般
+  verdict: 候補（結果不明）
+  why: 複数の異なる方向性のビジュアルを用意し、効果を比較検証するためのテストパターンであるため。
+  raw: Q2#16
+  used_in: [copy, review]
+  related: [FV-FOUR-VARIANTS, BASE-DATA-OVER-TASTE]
 gaps:
 - id: GAP-LEGAL-LINE
   title: 薬機法・景表法で「どこまで言えるか」の具体的な線引きとチェック手順
@@ -833,8 +1199,10 @@ gaps:
   impact: 運用改善（Step 8）の中核
   affects:
   - operate
+  confirmed_by:
+  - Q3#11
 - id: GAP-TOOLS
-  title: チャットボット・ヒートマップ・決済ツールの選定
+  title: チャットボット・ヒートマップ・決済ツールの選定（ヒートマップは言及あり、ツール選定は無し）
   origin: rag
   merged_from:
   - RISK-GAP-005
@@ -851,12 +1219,17 @@ gaps:
   affects:
   - structure
 - id: GAP-STRUCTURE
-  title: お客様の声・FAQ・保証など、一般的なLPセクションの扱い
+  title: お客様の声・FAQ・保証など、一般的なLPセクションの扱いと、LPの長さの目安
   origin: harness
   impact: 構成（Step 3）
   affects:
   - structure
   - copy
+  confirmed_by:
+  - Q3#1
+  - Q3#2
+  - Q3#3
+  - Q3#7
 - id: GAP-CTA
   title: CTAボタンの文言・位置・回数
   origin: harness
@@ -864,30 +1237,47 @@ gaps:
   affects:
   - copy
   - build
+  confirmed_by:
+  - Q3#4
 - id: GAP-FORM
   title: フォームの入力項目数・エラー表示
   origin: harness
   impact: Build（Step 4）
   affects:
   - build
+  confirmed_by:
+  - Q3#5
 - id: GAP-VISUAL
   title: フォント・配色・画像の仕様
   origin: harness
   impact: Build（Step 4）
   affects:
   - build
+  confirmed_by:
+  - Q3#6
 - id: GAP-TOKUSHOHO
-  title: 特定商取引法（定期購入の最終確認画面）、打消し表示、ステマ規制
+  title: 特定商取引法（定期購入の表示・最終確認画面・解約条件）、打消し表示・ビフォーアフター写真、ステマ規制
   origin: harness
   impact: 法令チェック（Step 5）
   affects:
   - review
+  confirmed_by:
+  - Q3#8
+  - Q3#9
 - id: GAP-RESEARCH-METHOD
-  title: 競合LPの具体的な集め方・分析の観点（「広告代理店に聞く」以外）
+  title: 競合LPの具体的な分析手順
   origin: harness
-  impact: Research（Step 6）。ハーネスの中核工程なのに手順がソースに無い
+  impact: Research（Step 3, 6）。探し方（広告代理店に聞く・上場企業の決算情報）は Q1 で判明し STR-IMITATE-WINNERS に反映済み。集めたLPをどう分析するかはソースに無い
   affects:
   - research
+- id: GAP-AD-TO-LP
+  title: 広告（SNS・リスティング）からLPへの流入のさせ方
+  origin: harness
+  impact: 公開（Step 7）。広告の訴求とLPの対応づけなど、流入設計の知識が無い
+  affects:
+  - publish
+  confirmed_by:
+  - Q3#12
 rejected:
 - id: DES-009
   title: フォントや配色などの装飾に時間をかけすぎない

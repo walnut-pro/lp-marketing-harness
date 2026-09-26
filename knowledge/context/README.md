@@ -12,17 +12,17 @@
 
 ## 工程別パック
 
-| 工程 | ファイル | 原則数 |
-|---|---|---|
-| ブリーフ | [stages/brief.md](stages/brief.md) | 4 |
-| リサーチ | [stages/research.md](stages/research.md) | 4 |
-| 戦略 | [stages/strategy.md](stages/strategy.md) | 7 |
-| 構成 | [stages/structure.md](stages/structure.md) | 7 |
-| コピー | [stages/copy.md](stages/copy.md) | 10 |
-| 実装 | [stages/build.md](stages/build.md) | 10 |
-| 審査 | [stages/review.md](stages/review.md) | 16 |
-| 公開 | [stages/publish.md](stages/publish.md) | 2 |
-| 運用 | [stages/operate.md](stages/operate.md) | 9 |
+| 工程 | ファイル | 原則数 | LP実例 | コピー実例 |
+|---|---|---|---|---|
+| ブリーフ | [stages/brief.md](stages/brief.md) | 4 | 0 | 0 |
+| リサーチ | [stages/research.md](stages/research.md) | 4 | 7 | 0 |
+| 戦略 | [stages/strategy.md](stages/strategy.md) | 7 | 7 | 0 |
+| 構成 | [stages/structure.md](stages/structure.md) | 7 | 7 | 0 |
+| コピー | [stages/copy.md](stages/copy.md) | 10 | 0 | 16 |
+| 実装 | [stages/build.md](stages/build.md) | 10 | 0 | 0 |
+| 審査 | [stages/review.md](stages/review.md) | 16 | 0 | 16 |
+| 公開 | [stages/publish.md](stages/publish.md) | 2 | 0 | 0 |
+| 運用 | [stages/operate.md](stages/operate.md) | 9 | 0 | 0 |
 
 ## 更新方法
 
