@@ -4,8 +4,8 @@
 
 | Step | 名称 | 成果物 | 合格基準 | 状態 |
 |---|---|---|---|---|
-| 0 | 憲章・設計ドラフト | charter / architecture / roadmap / ADR-0001 | 監査人がゴール定義・スコープ・RAG接続方針を承認 | **レビュー中** |
-| 1 | 知識の抽出と構造化 | `knowledge/principles/*.yaml`（原則カタログ）、矛盾・不確実点リスト | 全原則に出典あり／監査人が各原則を approved・rejected 判定済み／工程(stage)の網羅に穴がない | 未着手 |
+| 0 | 憲章・設計ドラフト | charter / architecture / roadmap / ADR-0001 | 監査人がゴール定義・スコープ・RAG接続方針を承認 | **承認待ち** |
+| 1 | 知識の抽出と構造化 | `knowledge/principles/*.yaml`（原則カタログ）、矛盾・不確実点リスト | 全原則に出典あり／監査人が各原則を approved・rejected 判定済み／工程(stage)の網羅に穴がない | **進行中**（P1〜P7 受領 → [統合カタログ v0.1](../knowledge/principles/catalog.draft.yaml)、[中間レビュー](../knowledge/review/step1-interim-P4-P7.md)） |
 | 2 | 評価基盤（ルーブリック） | 原則→ルーブリック自動生成、採点器、ゴールデンセット（良いLP・悪いLPの例） | 採点器が良い例と悪い例を正しく判別（一致率を監査人と合意した閾値以上） | 未着手 |
 | 3 | 生成パイプライン MVP | Brief→Strategy→Structure→Copy の工程実装、原則IDトレース | 1商品で訴求軸3パターンのコピー一式を生成し、ルーブリック合格 | 未着手 |
 | 4 | Build（HTML化） | モバイルファーストのLPテンプレートと生成器 | Lighthouse モバイル性能・アクセシビリティ基準、表示崩れなし | 未着手 |
