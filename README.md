@@ -17,6 +17,7 @@ LP制作〜運用改善までの全工程をAIで自動化するハーネス製�
 | [docs/footguns.md](docs/footguns.md) | 踏んだ・踏みうる落とし穴と対策 |
 | [knowledge/principles/catalog.yaml](knowledge/principles/catalog.yaml) | 原則カタログ（知識の正本） |
 | [knowledge/context/](knowledge/context/) | **使いやすいコンテキストデータ**（プレイブック・工程別パック・採点項目。自動生成） |
+| [docs/decisions/0003-adopt-pstack.md](docs/decisions/0003-adopt-pstack.md) | 進め方の基本 pstack の導入（`.claude/skills/`・`.claude/agents/` に取り込み、出典は `third_party/pstack/`） |
 | [knowledge/extraction-prompts.md](knowledge/extraction-prompts.md) | Gemini Notebook から知識を抽出するためのプロンプト集 |
 
 ## 現在のステップ
