@@ -1,0 +1,511 @@
+# 原則カタログ ドラフト v0.1（P1〜P7 の71件を統合）
+#
+# status:     draft = 監査人の判定待ち / approved / rejected
+# scope:      core = ハーネスが必ず適用 / optional = 条件付きで適用する部品 / reference = 参考（採点対象外）
+# confidence: high = ソース中で一般原則として繰り返し語られる
+#             medium = 1つの事例から導かれた主張
+#             low = Gemini による合成・推測の比重が大きい
+# check:      ハーネス側で設計した「自動採点のための確認方法」。ソース由来ではない
+# sources:    未解決（Gemini の source 番号が回答ごとに変わるため動画を特定できない）。
+#             knowledge/extraction-prompts.md の V1 で動画別の索引を取得してから確定する
+# evidence:   YouTube 自動字幕由来で誤変換を含む。趣旨の引用として扱う
+
+meta:
+  version: 0.1
+  raw_items: 71
+  merged_principles: 26
+  reference_items: 5
+  rejected_items: 1
+
+principles:
+
+  # ---------------------------------------------------------------- 基本方針
+  - id: BASE-LP-FORMAT
+    stage: structure
+    scope: core
+    title: 縦長1ページのLPで売り、ブランドサイトでは売らない
+    statement: 販売は遷移のない縦長1ページのLPで行う。ブランドサイト（公式サイト）とは別URL・別構成にし、広告の飛び先は必ずLPにする。
+    rationale: 複数ページのサイトは購入までのクリックが多く、広告を流してもCVRが悪いため。
+    evidence:
+      - "lpで売りますよ…縦長のページですよね あれで売りますそれが基本ですね"
+      - "ブランドのサイトであそこは売れないんで…広告が出しても効率悪いから出して意味ない"
+    applies_when: 常に
+    anti_patterns:
+      - 広告の飛び先をブランドサイトのトップにする
+      - 詳細説明やFAQを別ページに分ける
+    check: 購入完了までのページ遷移が0回か。外部ページへのリンクが購入導線上にないか
+    merged_from: [CORE-001, CORE-012, STRUC-001, STRUC-009]
+    confidence: high
+    status: draft
+
+  - id: BASE-KPI-CVR
+    stage: operation
+    scope: core
+    title: LPの良し悪しはCVR（成約率）だけで判断する
+    statement: LPの評価指標はCVRを最優先とし、見た目の好みでは評価しない。
+    rationale: CVRが2倍になれば同じ広告費で獲得数が2倍になり、利益が大きく変わるため。
+    evidence:
+      - "lpで一番大切なのはコンバージョンレートです"
+      - "平均値は業界5%…10%に引き上げることができれば2倍効率いい"
+    applies_when: 常に
+    anti_patterns:
+      - デザインのかっこよさで評価する
+    check: 実験の勝敗判定がCVRで行われているか
+    notes: 「業界平均5%」は前提（流入元・成果の定義）不明の1発言。合格基準には使わない
+    merged_from: [CORE-002]
+    confidence: high
+    status: draft
+
+  - id: BASE-DATA-OVER-TASTE
+    stage: operation
+    scope: core
+    title: 主観を入れず、複数パターンを数値で機械的に選ぶ
+    statement: 「かっこいい」「かわいい」などの主観で決めず、複数パターンを作ってCVRの数値だけで採用を決める。
+    rationale: 主観による評価と売上は一致しないため。
+    evidence:
+      - "自分の主観って全く入れないですよね すごい機械的に作るんですよ"
+    applies_when: 常に
+    anti_patterns:
+      - 担当者や経営者の好みでデザイン・コピーを1つに決める
+    check: 採用判断の記録に数値根拠があるか（主観的な理由のみの採用がないか）
+    merged_from: [CORE-003, DES-001]
+    confidence: high
+    status: draft
+
+  - id: BASE-SELL-NOT-LOVE
+    stage: strategy
+    scope: core
+    title: 「良い商品だから売れる」と考えず、売り方（成約）を最優先する
+    statement: 商品の品質や成分への愛着を前面に出すのではなく、初見客が手に取るための見せ方・買いやすさを最優先で設計する。
+    rationale: どんなに良い商品でも、まず手に取ってもらわなければ良さは伝わらないため。
+    evidence:
+      - "担当者が商品に熱量がめちゃくちゃあってこれいいんですよって言ってくる人たち もう絶対ダメなんですよ"
+      - "そもそも手に取らないと売れないから"
+    applies_when: 常に
+    anti_patterns:
+      - 品質の良さを理由に割引・お試しを一切しない
+      - 商品説明（成分・製法）ばかりでベネフィットがない
+    check: 本文のうち商品スペック説明と顧客ベネフィットの比率（スペック偏重でないか）
+    merged_from: [CORE-007, OFR-008]
+    confidence: high
+    status: draft
+
+  - id: BASE-NO-LEAKY-BUCKET
+    stage: operation
+    scope: core
+    title: LPのCVRが確認できるまで大きな集客をしない
+    statement: 売り場としてのLPが整っていない（CVRが低い）段階で、広告やインフルエンサー案件に大きな予算を投じない。
+    rationale: 穴の開いたバケツに水を入れるのと同じで、集客しても成約せず広告費が無駄になるため。
+    evidence:
+      - "ちゃんとした売り場がない状態で案件やっていっぱいアクセス流しても誰も成約してない"
+      - "穴の開いたバケツにいくら水入れても漏れていっちゃう"
+    applies_when: 集客を行うすべてのLP
+    anti_patterns:
+      - CVR未検証のまま広告予算を一気に投入する
+    check: 公開手順に「少額配信でCVRを確認 → 予算増額」の段階があるか
+    merged_from: [CORE-011, FV-009]
+    confidence: high
+    status: draft
+
+  # ---------------------------------------------------------------- 戦略・リサーチ
+  - id: STR-IMITATE-WINNERS
+    stage: research
+    scope: core
+    title: 今売れている競合LPを複数集めて構成を真似し、それを上回る
+    statement: 広告代理店への聞き取りや上場企業の通販LP（例：DUO）の調査で「今一番売れている商品」のLPを複数集め、構成を分析してその通りに作る。そのうえで初回割引・チャット窓口などの工夫で競合を上回る。ペルソナ設定やPASONAの法則などの理論には頼らない。
+    rationale: 市場で結果が出ている構成を使う方が確実で速く、理論は現場で再現できないため。
+    evidence:
+      - "今一番売れている商品を広告代理店さんに聞いてください…その構成を分析してその通り作ってください"
+      - "売れてる上場企業のLPを真似します でより良いものを作ります"
+      - "パソナの法則とかこのよくわかんないことをやらないです"
+    applies_when: LPの初期構成を決めるとき
+    anti_patterns:
+      - 独自の発想だけで一から構成を作る
+      - ペルソナ設定やフレームワーク適用に時間をかける
+      - 競合の劣化コピーで満足する
+    check: 構成案に参照した競合LP（2件以上）と、各競合に対する上回りポイントが記録されているか
+    merged_from: [CORE-006, STR-001, STR-002, STR-004, STRUC-002, COPY-006]
+    confidence: high
+    status: draft
+
+  - id: STR-RELATIVE-ADVANTAGE
+    stage: strategy
+    scope: core
+    title: 比較される前提で「他社より優れている点」を設計する
+    statement: 商品単体の良さではなく、顧客が複数サイトを比較したときに明確に勝てる相対的な優位性を設計する。
+    rationale: 顧客は必ず複数の商品を比較して選ぶため。
+    evidence:
+      - "物を選ぶ時にいろんなサイトを見て比較しますよね"
+      - "すべて相対的な競争力なんですよ"
+    applies_when: 常に
+    anti_patterns:
+      - 競合と比較せずに訴求を決める
+    check: 競合比較表（価格・初回条件・権威性・訴求）があり、自社が勝つ項目が明示されているか
+    merged_from: [STR-010]
+    confidence: high
+    status: draft
+
+  - id: STR-CURATE-INFO
+    stage: research
+    scope: core
+    title: ゼロから書かず、世の中の情報を集めて分かりやすく整理する
+    statement: 文章や情報は一から創作せず、ネット上に点在する情報を収集・整理して分かりやすく提示する。
+    rationale: 情報を集めて整理するだけで、読み手にとって大きな価値になるため。
+    evidence:
+      - "いろんなところからの文章を集めてそれを整理して公開するだけですごい価値があるんですよ"
+    applies_when: リサーチ・本文作成時
+    anti_patterns:
+      - リサーチせずに文章力だけで書く
+    check: 本文の主張ごとにリサーチ結果（出典）が紐づいているか
+    notes: 他者の文章の無断転載は著作権侵害になるため、「集めて整理する」は要約・再構成に限る（RAG外の注意）
+    merged_from: [STR-008, COPY-005]
+    confidence: medium
+    status: draft
+
+  # ---------------------------------------------------------------- ファーストビュー・コピー
+  - id: FV-TOP-PRIORITY
+    stage: copy
+    scope: core
+    title: ファーストビューに最も力を入れ、最優先で改善する
+    statement: FVはCVRを最も左右する場所として、制作でも改善テストでも最優先にする。
+    rationale: 最初に見る場所で価値が伝わらなければ、その先は読まれず離脱されるため。
+    evidence:
+      - "トップのこのファーストビュー…とにかく命をかけてここをいいものにしたい"
+    applies_when: 常に
+    anti_patterns:
+      - FVを後回しにして本文ばかり作り込む
+    check: 改善テストの最初の対象がFVになっているか
+    merged_from: [FV-001]
+    confidence: high
+    status: draft
+
+  - id: FV-BENEFIT-AT-GLANCE
+    stage: copy
+    scope: core
+    title: 初見客がFVを一目見て「買うと何が得られるか」わかるようにする
+    statement: 商品を知らない人がFVを見た瞬間に、使うと何ができるか・どんな効果やメリットがあるかを理解できるコピーと画像にする。
+    rationale: 自分へのメリットが瞬時に伝わらなければ、初見客はすぐ離脱するため。
+    evidence:
+      - "何も知らない状態の人がそのトップページを見た時にこの商品を買って何ができるかわかんないんですよね"
+      - "これを使ったら何が得られるかって結構一目でわかりませんか まずそこがすごく大事"
+    applies_when: 常に
+    anti_patterns:
+      - イメージ写真とポエム調のコピーだけでベネフィットを書かない
+    check: FVの見出しに具体的なベネフィット（得られる結果）が含まれるか。商品を知らない評価者が5秒で説明できるか
+    merged_from: [CORE-008, FV-002, FV-009, COPY-003]
+    confidence: high
+    status: draft
+
+  - id: FV-NO-JARGON
+    stage: copy
+    scope: core
+    title: 認知度の低い成分名・専門用語だけで訴求しない
+    statement: 「NMN配合」のような、一般の人が知らない成分名や専門用語を主役にした訴求をしない。使う場合はベネフィットと一緒に示す。
+    rationale: 成分名を知らない人には、それで何が得られるかが伝わらないため。
+    evidence:
+      - "NMNのこと知ってる人ってどんくらいいるかっていうとそんなにいないんで まだまだこれからダメです"
+    applies_when: 一般消費者向けの商品
+    anti_patterns:
+      - FVの見出しが成分名だけ
+    check: FVの見出しが専門用語のみで構成されていないか
+    merged_from: [STR-005, COPY-002]
+    confidence: high
+    status: draft
+
+  - id: FV-AUTHORITY
+    stage: copy
+    scope: core
+    title: 権威性（特許・大学教授の推薦・論文など）をFVの目立つ位置と本文で示す
+    statement: 特許、大学教授や専門家の推薦・共同研究、論文など第三者による裏付けを訴求の核にし、FVの目立つ位置に載せる。
+    rationale: 初見客に短時間で信頼感を与え、競合との差別化になるため。
+    evidence:
+      - "特許が内包されたような商品であることとか 大学の教授の方とかが…推薦しているとか"
+      - "権威性と安心感の提示"
+    applies_when: 信頼が重要な商材（化粧品・サプリ・医療・高額サービス）で、実際の権威性素材がある場合
+    anti_patterns:
+      - 権威性があるのにページ下部に埋もれさせる
+      - 実在しない・誇張した権威性を載せる（景表法違反）
+    check: Brief に権威性素材がある場合、FVに表示されているか。表示内容が Brief の証拠と一致しているか
+    merged_from: [STR-006, FV-003, COPY-008]
+    confidence: high
+    status: draft
+
+  - id: FV-LEGAL-MAX
+    stage: copy
+    scope: core
+    title: 薬機法・景表法の範囲内で、効果効能を最大限はっきり伝える
+    statement: 法令違反となる表現（例：「塗るだけでシミが消える」）は絶対に使わない。一方で法令を恐れてぼかしすぎず、許される範囲で最大限具体的に効果効能を表現する。
+    rationale: 違反は重大な事業リスクであり、ぼかしすぎると何の商品か伝わらずCVRが落ちるため。
+    evidence:
+      - "塗るだけで肌が綺麗になるとかシミが消えるとか書きたいところですけども それは絶対やってちゃいけない"
+      - "効果効能があるかっていうことを薬事法に抵触しない範囲で書く必要がある"
+      - "薬事法・景表法の観点は…専門部署を作っていただいてしっかり対応する"
+    applies_when: 化粧品・健康食品・医療美容など法規制のある商材
+    anti_patterns:
+      - 違法な誇大表現
+      - 何に効くのかわからない曖昧な表現
+    check: 法令NG表現の検出が0件か。NG表現には言い換え案が提示されているか
+    merged_from: [FV-004, COPY-004]
+    confidence: high
+    status: draft
+
+  - id: FV-FOUR-VARIANTS
+    stage: copy
+    scope: core
+    title: FVの画像とキャッチコピーは方向性の違う4パターンを作ってテストする
+    statement: FVのメイン画像（例：かわいい系・かっこいい系・起用人物の違い）とキャッチコピー（例：「真っ黒毛穴クレンジング」「黒い新しいクレンジング」）を、それぞれ方向性の異なる4パターン作り、同時に配信してCVRで選ぶ。
+    rationale: どれが刺さるかは事前に判断できないため。
+    evidence:
+      - "ファーストビューと言われる写真…大体4パターンで作るんですよね 違う方向性で"
+      - "4つくらい原稿を作って…どの言葉を使ったサイトが一番成約率が高いかを競うんですよ"
+    applies_when: FVの制作・改善時
+    anti_patterns:
+      - 1パターンだけ作ってテストしない
+      - 4パターンが言い回し違いだけで方向性が同じ
+    check: FVの画像・コピーがそれぞれ4案あり、案同士の訴求の方向性が異なるか
+    merged_from: [STR-003, FV-005, FV-006, COPY-001, DES-003]
+    confidence: high
+    status: draft
+
+  - id: COPY-WARNING-EDUCATION
+    stage: copy
+    scope: optional
+    title: 業界の注意点や粗悪な競合のトラブルを伝え、信頼を得る
+    statement: 誤解を招く格安競合（例：「通院不要」「前歯だけ治せる」マウスピース）の被害事例や業界の問題点を分かりやすく注意喚起し、正しい選び方を教える。
+    rationale: 客観的に注意点を伝えることで信頼され、問い合わせや滞在時間が増えるため。
+    evidence:
+      - "ローコストマウスピース…被害とかがすごく出てきて…注意喚起みたいなものを公式サイトですごく訴求していったり…問い合わせが激増しました"
+      - "サイトの滞在時間も35%伸びた"
+    applies_when: 粗悪・誤解を招く競合が存在する業界
+    anti_patterns:
+      - 特定の競合名を挙げて誹謗する（RAG外の注意：比較広告・不正競争のリスク）
+    check: 注意喚起セクションが事実に基づき、特定企業を誹謗していないか
+    merged_from: [COPY-007]
+    confidence: medium
+    status: draft
+
+  - id: COPY-WHY-CHEAP
+    stage: copy
+    scope: optional
+    title: 「高品質なのに安い理由」を仕組みで説明する
+    statement: 「高品質」「安い」と言うだけでなく、なぜそれが実現できるのか（採用素材・技術・仕組み）を説明する。
+    rationale: 理由のない主張は疑われるが、理由があると納得感が生まれるため。
+    evidence:
+      - "圧倒的なコスパと高品質 その秘密は矯正器具世界トップブランドと…最新技術を活用していることです"
+    applies_when: 高品質かつ低価格を売りにする商材
+    anti_patterns:
+      - 結果だけ主張して理由を書かない
+    check: 価格優位を主張する場合、その理由が本文にあるか
+    merged_from: [COPY-009]
+    confidence: medium
+    status: draft
+
+  # ---------------------------------------------------------------- 導線・オファー
+  - id: OFR-TRIAL-PRICE
+    stage: offer
+    scope: core
+    title: 初回はお試し価格にし、リピートで利益を回収する
+    statement: 高額な定価で売らず、初回半額などのお試し価格にする。初回は原価と送料で赤字にならない程度に抑え、2回目以降のリピートで利益を出す。
+    rationale: 認知のない新規客にとって高い定価（例：27,000円）は試す壁が高すぎるため。
+    evidence:
+      - "初めての人って2万7000円で試すかっていうとかなりそこでハードルになる"
+      - "原価と配送費含めて赤字にならないくらいの価格にして…リピートで買うそのサイクルを作るべき"
+    applies_when: リピートが見込める商材（化粧品・サプリ・定期購入）
+    anti_patterns:
+      - 初回から定価のみで販売する
+      - 初回で大きな利益を取ろうとする
+    check: Brief に初回価格・通常価格・原価・送料があり、初回価格が「原価＋送料」以上かつ通常価格より低いか
+    notes: 定期購入の条件表示は特定商取引法の最終確認画面の表示義務に注意（RAG外、法令チェックで扱う）
+    merged_from: [CORE-010, OFR-001, OFR-002, OFR-008]
+    confidence: high
+    status: draft
+
+  - id: OFR-SINGLE-OFFER
+    stage: offer
+    scope: core
+    title: 申込時の選択肢は1つに絞る
+    statement: 複数のプラン・コース・商品を選ばせず、売りたいオファーを1つだけ提示する。
+    rationale: 選択肢があると迷い、購入を先送りして離脱するため。
+    evidence:
+      - "選ばせてるじゃないですか これ時点でどれ選ぶか迷うからみんなやめときますよ 1つに絞る"
+    applies_when: 常に
+    anti_patterns:
+      - プランA/B/Cから選ばせる
+    check: 申込エリアの商品・プラン選択肢が1つか
+    merged_from: [CORE-009, STRUC-004, OFR-003]
+    confidence: high
+    status: draft
+
+  - id: OFR-FEWEST-CLICKS
+    stage: design
+    scope: core
+    title: 購入まで1ページで完結させ、クリックと読み込みを最小にする
+    statement: ボタンを押した後に複数画面を移動させず、同じページ内で入力・購入を完了させる。画像を重くして読み込みを遅くしない。
+    rationale: 3クリック以上や読み込み待ちが発生するたびに、面倒に感じた一定割合の客が離脱するため。
+    evidence:
+      - "これ3クリックですよね…面倒くさいことすると離脱してくるんですよ"
+      - "遷移した時点で読み込み時間がめんどくさいとか言ってやめるんですよ やめる人全員じゃないけどやめる比率が上がる"
+    applies_when: 常に
+    anti_patterns:
+      - 購入ボタンの後に商品選択や確認で3〜4画面遷移させる
+      - 重い画像で表示が遅い
+    check: CTAから購入完了までのクリック数とページ遷移数。モバイルの表示速度（Lighthouse の LCP など）
+    merged_from: [CORE-009, STRUC-003, DES-006, OFR-005]
+    confidence: high
+    status: draft
+
+  - id: OFR-NO-COUPON-INPUT
+    stage: offer
+    scope: core
+    title: クーポンコードを手入力させない
+    statement: 割引は最初から自動で適用し、客にクーポンコードを探させたり入力させたりしない。
+    rationale: 入力の手間で、100人中10〜20人が購入をやめる可能性があるため。
+    evidence:
+      - "クーポンコードを入力させること自体がマジでめんどくさいんで…ここで離脱します"
+      - "面倒くさいがやめようって人が100人いたら10人なのか20人なのかわかんないけどやめる"
+    applies_when: 常に
+    anti_patterns:
+      - フォームにクーポンコード入力欄がある
+    check: フォームにクーポン・プロモコード入力欄がないか
+    merged_from: [CORE-009, STRUC-007, OFR-004]
+    confidence: high
+    status: draft
+
+  - id: OFR-MANGA-BEFORE-FORM
+    stage: structure
+    scope: optional
+    title: 最も離脱が多い箇所（フォーム手前）に4コマ漫画を入れる
+    statement: 予約・申込フォームの直前など離脱が最も多い箇所に、サービス内容や流れが直感的にわかる4コマ漫画を入れる。
+    rationale: 文字だけの説明で理解できずに離脱する人を、視覚的な説明で引き留められるため。
+    evidence:
+      - "1番お客さんが離れてしまうページにこういうような4コマ漫画を入れて誰でも読みやすく"
+      - "4コマ漫画を入れることで離脱がすごく減った"
+    applies_when: サービス内容の理解が難しく、フォーム手前での離脱が多い場合（予約型サービス等）
+    anti_patterns:
+      - フォーム直前が文字だけの長い説明や規約
+    check: 計測で離脱が最も多いセクションを特定し、その直前に視覚的説明（漫画・図解）があるか
+    merged_from: [CORE-014, STRUC-005, DES-007, OFR-007]
+    confidence: medium
+    status: draft
+
+  - id: OFR-CHATBOT
+    stage: design
+    scope: optional
+    title: チャットボット形式で1画面のまま注文できるようにする
+    statement: 画面右下などにチャットボットの購入窓口を置き、会話形式で名前・住所などを入力して注文を完了できるようにする。
+    rationale: ネット操作に慣れていない人でも迷わず購入でき、入力の手間による離脱が減るため。
+    evidence:
+      - "チャットボットって言って チャットのオペレーションでもう商品を買えるようにしてたり"
+      - "1画面で買えるんですよね…チャットボットで買えてますね"
+    applies_when: フォーム入力の離脱が多い場合、ネット操作に不慣れな層が対象の場合
+    anti_patterns:
+      - 入力項目の多い従来型フォームのみ
+    check: 導入する場合、通常フォームとのABテストで効果を検証しているか
+    notes: ソースでは競合（DUO）の事例として語られており、Gemini が「常に」と一般化している。任意部品としてテスト対象にするのが妥当
+    merged_from: [FV-008, STRUC-006, DES-005, OFR-006]
+    confidence: medium
+    status: draft
+
+  - id: DES-MOTION-FV
+    stage: design
+    scope: optional
+    title: FV付近に使用イメージの動画を置く
+    statement: FV内や画面右下に、商品の使い方や変化が直感的にわかる短い動画を置く。
+    rationale: 静止画やテキストより短時間でベネフィットを理解させられるため。
+    evidence:
+      - "右下にも動画もあるし まずそこがすごく大事"
+    applies_when: 使用感や変化を映像で見せられる商材
+    anti_patterns:
+      - 動画でページが重くなり表示が遅れる（OFR-FEWEST-CLICKS と両立させる）
+    check: 動画を置く場合、遅延読み込みで表示速度を落としていないか
+    merged_from: [FV-008, DES-004]
+    confidence: medium
+    status: draft
+
+  # ---------------------------------------------------------------- 運用
+  - id: OPS-ELEMENT-TESTING
+    stage: operation
+    scope: core
+    title: 要素を1つずつ差し替えるテストを週単位で回し続け、勝ち要素を組み上げる
+    statement: 画像・キャッチコピーなど要素を分けて、1回のテストでは1要素だけ変える。週ごと（または一定販売数ごと、例：1000個）にテストを回し続け、勝った要素を組み合わせて「最強のLP」にしていく。
+    rationale: 一度作って終わりではなく、更新し続けることでCVRの高いLPになるため。全要素を一度に変えると何が効いたかわからなくなるため。
+    evidence:
+      - "この週は画像をやりましょうでこの週は文字をやりましょうとか常にサイトのアップデートカスタマイズやってます 1週間ごとに"
+      - "何を一番使えばお客さんに響くか そのパズルが組み合わさった最強のサイトができます"
+    applies_when: 公開後の運用全般
+    anti_patterns:
+      - 一度作ったLPを放置する
+      - 複数要素を同時に変えて原因がわからなくなる
+    check: 実験記録で、1実験あたりの変更要素が1つか。実験が継続的に回っているか
+    notes: 勝敗判定の統計ルール（必要サンプル数・有意水準）はソースに無い。Step 8 で別途設計する
+    merged_from: [CORE-013, FV-007]
+    confidence: high
+    status: draft
+
+  # ---------------------------------------------------------------- 構成テンプレート
+  - id: STRUC-TEMPLATE-V0
+    stage: structure
+    scope: core
+    title: LP構成テンプレート（暫定）
+    statement: |
+      1. FV：一目でわかるベネフィット／権威性／（任意）動画
+      2. 信頼・根拠：特許・論文・専門家など／（任意）業界の注意喚起
+      3. オファー：初回お試し価格（1つだけ）
+      4. （任意）フォーム手前の4コマ漫画
+      5. 申込：同じページ内のフォーム、クーポン入力なし／（任意）チャットボット
+    rationale: FVから購入完了までの離脱要因を減らす構成として Gemini がまとめたもの。
+    applies_when: 販売用LP
+    check: セクションがこの順で存在するか（任意部品を除く）
+    notes: |
+      ソースに明示された「推奨構成」ではなく、Gemini が複数の原則をつなげて作った合成である（confidence: low）。
+      お客様の声・FAQ・保証・CTAの回数や位置など、一般的なLPにある要素がソースに登場しない。
+      STR-IMITATE-WINNERS に従い、実際の構成は競合LPの分析で決め、このテンプレートは最低限の必須要素の確認に使う案。
+    merged_from: [STRUC-TEMPLATE]
+    confidence: low
+    status: draft
+
+  - id: STRUC-ARTICLE-LP
+    stage: structure
+    scope: optional
+    title: 比較検討が必要な商材では、記事型LPを挟んでから販売LPへ送る
+    statement: 悩みはあるが知識のない見込み客には、広告から直接販売LPに送らず、悩みの解説や注意喚起を行う記事型LPを挟む。
+    rationale: 事前に理解を深めることで、成約率や顧客の質が上がるため。
+    evidence:
+      - "記事の形で答えるというのをたくさん量産していく ここで教育的なことをやって…行くと契約率も上がる"
+    applies_when: 比較検討が長い商材・医療系サービス
+    anti_patterns:
+      - 知識の少ない人をいきなり販売LPに送る
+    check: 対象商材の場合、記事LP→販売LPの2段構成を選択肢として生成できるか
+    notes: 根拠はSEO記事の事例が中心で、「記事LP」自体の言及は字幕が崩れており曖昧
+    merged_from: [STRUC-008]
+    confidence: low
+    status: draft
+
+# ------------------------------------------------------------------ 参考（採点対象外）
+reference:
+  - id: REF-INHOUSE
+    title: LP制作は制作会社に丸投げせず、内製するかコンペで優秀な個人に依頼する
+    merged_from: [CORE-004, CORE-005, DES-002]
+    reason: 組織・発注方針。このハーネス自体が「内製化」の手段にあたる
+  - id: REF-MARKET-TIMING
+    title: 誰かが儲かり始めた直後の市場に参入する
+    merged_from: [STR-009]
+    reason: 商品・事業選定の判断
+  - id: REF-MULTI-BRAND
+    title: 当たったら自社で複数ブランドを立ち上げて市場を占有する
+    merged_from: [STR-011]
+    reason: 事業戦略
+  - id: REF-SEO-CONTENT
+    title: 顧客の悩みに答えるSEO記事を大量に作る（月150本の事例）
+    merged_from: [STR-007, COPY-010]
+    reason: LP外の集客チャネル。将来の拡張候補
+  - id: REF-AD-CREATIVE-REFRESH
+    title: 広告クリエイティブは飽きられるので高頻度で入れ替える
+    merged_from: [DES-008]
+    reason: 広告運用。スコープ外だが、広告を扱う段階で core に昇格する候補
+
+# ------------------------------------------------------------------ 却下候補
+rejected:
+  - id: DES-009
+    title: フォントや配色などの装飾に時間をかけすぎない
+    reason: Gemini 自身が「出典なし」としており、ソースに無いことからの推論。共通指示のルール1に反する
