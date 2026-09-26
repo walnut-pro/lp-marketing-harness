@@ -81,3 +81,16 @@ status: approved       # draft / approved / rejected（監査人が判定）
 - LP出力: 静的 HTML/CSS（Tailwind）
 - 公開: Cloudflare Pages または Vercel
 - 計測: GA4 + 自前の ABテスト振り分け
+
+## 変更予定（Step 1 の結果を反映。Step 0/1 の承認後に本文へ反映）
+
+| 変更 | 根拠 |
+|---|---|
+| Strategy 工程を「ペルソナ設計」から「売れている競合LPの構成分析 → 真似して上回る点の設計」に変更 | STR-IMITATE-WINNERS |
+| Research 工程の主対象を競合LPにする。MVPでは競合LPを手動入力（URL・スクリーンショット・HTML）で受け付ける | STR-IMITATE-WINNERS、footguns F-10 |
+| 訴求の既定パターン数を4にする | FV-FOUR-VARIANTS |
+| Build のFVを差し替え可能な部品（画像枠・見出し枠・権威性枠・CTA）で構成 | OPS-ELEMENT-TESTING |
+| Brief にオファー項目（通常価格・初回価格・原価・送料・定期条件）を必須化し、お試し価格が成り立つかを検査 | OFR-TRIAL-PRICE |
+| Review に自動チェック（遷移数・プラン数・クーポン欄・表示速度）と特商法の必須表示を追加 | OFR-*、footguns F-22 |
+| Publish に「少額配信でCVR確認 → 受け入れ能力を確認 → 増額」の段階を追加 | BASE-NO-LEAKY-BUCKET、OPS-CAPACITY-CHECK |
+| Measure にヒートマップ等で離脱最大箇所を特定する機能を追加 | FV-TOP-PRIORITY |

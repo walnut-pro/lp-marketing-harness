@@ -1,4 +1,4 @@
-# 原則カタログ ドラフト v0.1（P1〜P7 の71件を統合）
+# 原則カタログ ドラフト v0.2（P1〜P9 の97件を統合）
 #
 # status:     draft = 監査人の判定待ち / approved / rejected
 # scope:      core = ハーネスが必ず適用 / optional = 条件付きで適用する部品 / reference = 参考（採点対象外）
@@ -6,16 +6,22 @@
 #             medium = 1つの事例から導かれた主張
 #             low = Gemini による合成・推測の比重が大きい
 # check:      ハーネス側で設計した「自動採点のための確認方法」。ソース由来ではない
-# sources:    未解決（Gemini の source 番号が回答ごとに変わるため動画を特定できない）。
-#             knowledge/extraction-prompts.md の V1 で動画別の索引を取得してから確定する
-# evidence:   YouTube 自動字幕由来で誤変換を含む。趣旨の引用として扱う
+# notes:      「RAG外」と書いたものは責任者の一般知識による補足（監査人の承認対象）
+#
+# 出典の扱い（重要）:
+#   - sources は未確定。Gemini の source 番号は回答ごとに変わり、動画を特定できない
+#   - Gemini が出した timestamp は全件が30秒刻みで、01:00 が25回出現するなど推定値とみなす。採用しない
+#   - evidence は YouTube 自動字幕由来で誤変換を含むうえ、別の話題の発言が混入した例がある（RISK-007）。
+#     字幕原文と照合するまでは「未検証の引用」として扱う（docs/footguns.md F-02, F-03）
 
 meta:
-  version: 0.1
-  raw_items: 71
-  merged_principles: 26
-  reference_items: 5
+  version: 0.2
+  raw_items: 97
+  merged_principles: 27
+  reference_items: 8
   rejected_items: 1
+  cases: 3
+  gaps: 12
 
 principles:
 
@@ -42,17 +48,20 @@ principles:
     stage: operation
     scope: core
     title: LPの良し悪しはCVR（成約率）だけで判断する
-    statement: LPの評価指標はCVRを最優先とし、見た目の好みでは評価しない。
+    statement: LPの評価指標はCVRを最優先とし、見た目の好みやPV数では評価しない。
     rationale: CVRが2倍になれば同じ広告費で獲得数が2倍になり、利益が大きく変わるため。
     evidence:
       - "lpで一番大切なのはコンバージョンレートです"
       - "平均値は業界5%…10%に引き上げることができれば2倍効率いい"
     applies_when: 常に
     anti_patterns:
-      - デザインのかっこよさで評価する
+      - デザインのかっこよさやPV数で評価する
     check: 実験の勝敗判定がCVRで行われているか
-    notes: 「業界平均5%」は前提（流入元・成果の定義）不明の1発言。合格基準には使わない
-    merged_from: [CORE-002]
+    notes: |
+      「業界平均5%」は前提（流入元・成果の定義）不明の1発言。合格基準には使わない。
+      OPS-001 は「10%を目指す」を目標として書いているが、ソースは「10%に上がれば2倍」という例え話であり、目標値としては採用しない。
+      CVRだけを追うと定期縛りや誇大表現でCVRを上げる誘惑が生じるため、法令チェックと解約率・返品率を併せて監視する（RAG外）。
+    merged_from: [CORE-002, OPS-001]
     confidence: high
     status: draft
 
@@ -64,11 +73,12 @@ principles:
     rationale: 主観による評価と売上は一致しないため。
     evidence:
       - "自分の主観って全く入れないですよね すごい機械的に作るんですよ"
+      - "機械的にその4つのパターンでどれが一番効果がいいか…数値ベースで選んでく"
     applies_when: 常に
     anti_patterns:
       - 担当者や経営者の好みでデザイン・コピーを1つに決める
     check: 採用判断の記録に数値根拠があるか（主観的な理由のみの採用がないか）
-    merged_from: [CORE-003, DES-001]
+    merged_from: [CORE-003, DES-001, OPS-002]
     confidence: high
     status: draft
 
@@ -84,9 +94,9 @@ principles:
     applies_when: 常に
     anti_patterns:
       - 品質の良さを理由に割引・お試しを一切しない
-      - 商品説明（成分・製法）ばかりでベネフィットがない
+      - 商品説明（成分・製法・開発秘話）ばかりでベネフィットがない
     check: 本文のうち商品スペック説明と顧客ベネフィットの比率（スペック偏重でないか）
-    merged_from: [CORE-007, OFR-008]
+    merged_from: [CORE-007, OFR-008, RISK-002]
     confidence: high
     status: draft
 
@@ -98,12 +108,12 @@ principles:
     rationale: 穴の開いたバケツに水を入れるのと同じで、集客しても成約せず広告費が無駄になるため。
     evidence:
       - "ちゃんとした売り場がない状態で案件やっていっぱいアクセス流しても誰も成約してない"
-      - "穴の開いたバケツにいくら水入れても漏れていっちゃう"
+      - "穴の開いたバケツにいくら水入れても漏れていっちゃう…まずそこをしっかり強いサイトを作ってからやっていきましょう"
     applies_when: 集客を行うすべてのLP
     anti_patterns:
       - CVR未検証のまま広告予算を一気に投入する
     check: 公開手順に「少額配信でCVRを確認 → 予算増額」の段階があるか
-    merged_from: [CORE-011, FV-009]
+    merged_from: [CORE-011, FV-009, OPS-007, RISK-003]
     confidence: high
     status: draft
 
@@ -124,6 +134,9 @@ principles:
       - ペルソナ設定やフレームワーク適用に時間をかける
       - 競合の劣化コピーで満足する
     check: 構成案に参照した競合LP（2件以上）と、各競合に対する上回りポイントが記録されているか
+    notes: |
+      真似るのは「構成（セクションの種類と順番）と訴求の型」まで。競合の文章・画像をそのまま使うのは著作権侵害・不正競争のリスクがある（RAG外）。
+      競合LPの取得には一般サイトへのネットワーク接続が必要（現環境では遮断。docs/footguns.md F-10）。
     merged_from: [CORE-006, STR-001, STR-002, STR-004, STRUC-002, COPY-006]
     confidence: high
     status: draft
@@ -157,25 +170,28 @@ principles:
     anti_patterns:
       - リサーチせずに文章力だけで書く
     check: 本文の主張ごとにリサーチ結果（出典）が紐づいているか
-    notes: 他者の文章の無断転載は著作権侵害になるため、「集めて整理する」は要約・再構成に限る（RAG外の注意）
+    notes: 他者の文章の無断転載は著作権侵害になるため、「集めて整理する」は要約・再構成に限る（RAG外）
     merged_from: [STR-008, COPY-005]
     confidence: medium
     status: draft
 
   # ---------------------------------------------------------------- ファーストビュー・コピー
   - id: FV-TOP-PRIORITY
-    stage: copy
+    stage: operation
     scope: core
-    title: ファーストビューに最も力を入れ、最優先で改善する
-    statement: FVはCVRを最も左右する場所として、制作でも改善テストでも最優先にする。
-    rationale: 最初に見る場所で価値が伝わらなければ、その先は読まれず離脱されるため。
+    title: 改善はFVを最優先し、次に離脱が最も多い箇所（フォーム手前）に取り組む
+    statement: FVはCVRを最も左右する場所として、制作でも改善テストでも最優先にする。次に、申込・予約フォーム手前など離脱が最も多い箇所を改善する。
+    rationale: 最初に見る場所で価値が伝わらなければその先は読まれず、フォーム手前の離脱を減らせば直接CVRが上がるため。
     evidence:
       - "トップのこのファーストビュー…とにかく命をかけてここをいいものにしたい"
-    applies_when: 常に
+      - "予約をする画面までは行くけれどそこでやめちゃう…4コマ漫画を入れることで離脱がすごく減った"
+    applies_when: 改善の優先順位を決めるとき
     anti_patterns:
       - FVを後回しにして本文ばかり作り込む
-    check: 改善テストの最初の対象がFVになっているか
-    merged_from: [FV-001]
+      - 離脱の少ない中盤やフッターから改修する
+    check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか
+    notes: FVが最優先である点は繰り返し語られる。「2番目がフォーム手前」という順序は Gemini が2つの発言をつないだもの（OPS-005）
+    merged_from: [FV-001, OPS-005]
     confidence: high
     status: draft
 
@@ -220,12 +236,14 @@ principles:
     rationale: 初見客に短時間で信頼感を与え、競合との差別化になるため。
     evidence:
       - "特許が内包されたような商品であることとか 大学の教授の方とかが…推薦しているとか"
-      - "権威性と安心感の提示"
     applies_when: 信頼が重要な商材（化粧品・サプリ・医療・高額サービス）で、実際の権威性素材がある場合
     anti_patterns:
       - 権威性があるのにページ下部に埋もれさせる
-      - 実在しない・誇張した権威性を載せる（景表法違反）
+      - 実在しない・誇張した権威性を載せる
     check: Brief に権威性素材がある場合、FVに表示されているか。表示内容が Brief の証拠と一致しているか
+    notes: |
+      以前の evidence「権威性と安心感の提示」は話し言葉ではなく見出しのような文言で、Gemini の要約が引用に混入した疑いがあるため削除。
+      医薬品等の広告では医師・専門家による推薦表現自体が制限される場合がある（RAG外。法令チェックで扱う）。
     merged_from: [STR-006, FV-003, COPY-008]
     confidence: high
     status: draft
@@ -245,7 +263,10 @@ principles:
       - 違法な誇大表現
       - 何に効くのかわからない曖昧な表現
     check: 法令NG表現の検出が0件か。NG表現には言い換え案が提示されているか
-    merged_from: [FV-004, COPY-004]
+    notes: |
+      RISK-007 の evidence「捕まりました」「それ脱税でやられたから」は脱税の話であり、薬機法とは無関係のため除外（docs/footguns.md F-03）。
+      「どこまで言えるか」の具体的な線引きはソースに無い（GAP-LEGAL-LINE）。自動チェックは補助であり、公開前の人の承認は必須。
+    merged_from: [FV-004, COPY-004, RISK-007]
     confidence: high
     status: draft
 
@@ -258,12 +279,16 @@ principles:
     evidence:
       - "ファーストビューと言われる写真…大体4パターンで作るんですよね 違う方向性で"
       - "4つくらい原稿を作って…どの言葉を使ったサイトが一番成約率が高いかを競うんですよ"
+      - "芸能人…乗せて4つのパターンのウェブサイトを作るんですよ 誰の画像を使った時に一番コンバージョンレート高いか"
     applies_when: FVの制作・改善時
     anti_patterns:
       - 1パターンだけ作ってテストしない
       - 4パターンが言い回し違いだけで方向性が同じ
     check: FVの画像・コピーがそれぞれ4案あり、案同士の訴求の方向性が異なるか
-    merged_from: [STR-003, FV-005, FV-006, COPY-001, DES-003]
+    notes: |
+      芸能人・モデルの起用は契約済みの素材に限る。AI画像生成で実在人物に似せた画像を作らない（肖像権・パブリシティ権。RAG外）。
+      4パターンに流量を4等分するため、流量が少ない場合は判定までの期間が長くなる（GAP-AB-STATS）。
+    merged_from: [STR-003, FV-005, FV-006, COPY-001, DES-003, OPS-003]
     confidence: high
     status: draft
 
@@ -278,7 +303,7 @@ principles:
       - "サイトの滞在時間も35%伸びた"
     applies_when: 粗悪・誤解を招く競合が存在する業界
     anti_patterns:
-      - 特定の競合名を挙げて誹謗する（RAG外の注意：比較広告・不正競争のリスク）
+      - 特定の競合名を挙げて誹謗する（比較広告・不正競争のリスク。RAG外）
     check: 注意喚起セクションが事実に基づき、特定企業を誹謗していないか
     merged_from: [COPY-007]
     confidence: medium
@@ -304,19 +329,23 @@ principles:
   - id: OFR-TRIAL-PRICE
     stage: offer
     scope: core
-    title: 初回はお試し価格にし、リピートで利益を回収する
-    statement: 高額な定価で売らず、初回半額などのお試し価格にする。初回は原価と送料で赤字にならない程度に抑え、2回目以降のリピートで利益を出す。
-    rationale: 認知のない新規客にとって高い定価（例：27,000円）は試す壁が高すぎるため。
+    title: 初回はお試し価格にし、リピートで利益を回収する（それが可能な原価構成にする）
+    statement: 高額な定価で売らず、初回半額などのお試し価格にする。初回は原価と送料で赤字にならない程度に抑え、2回目以降のリピートで利益を出す。原価率が高すぎてお試し価格が作れない場合は、原価構成から見直す。
+    rationale: 認知のない新規客にとって高い定価（例：27,000円）は試す壁が高すぎるため。原価が高いと、より安く作れる競合に負けるため。
     evidence:
       - "初めての人って2万7000円で試すかっていうとかなりそこでハードルになる"
       - "原価と配送費含めて赤字にならないくらいの価格にして…リピートで買うそのサイクルを作るべき"
+      - "そもそも原価構成が変えないと結局ライバルがもっと安い原価で作れちゃうんで"
     applies_when: リピートが見込める商材（化粧品・サプリ・定期購入）
     anti_patterns:
       - 初回から定価のみで販売する
       - 初回で大きな利益を取ろうとする
-    check: Brief に初回価格・通常価格・原価・送料があり、初回価格が「原価＋送料」以上かつ通常価格より低いか
-    notes: 定期購入の条件表示は特定商取引法の最終確認画面の表示義務に注意（RAG外、法令チェックで扱う）
-    merged_from: [CORE-010, OFR-001, OFR-002, OFR-008]
+      - お試し価格が作れないほど原価率が高い
+    check: Brief に初回価格・通常価格・原価・送料があり、初回価格が「原価＋送料」以上かつ通常価格より低いか。成り立たない場合は Brief の段階で警告する
+    notes: |
+      定期購入を条件とするお試しは、特定商取引法の最終確認画面での表示（支払総額・回数・解約条件など）が必要。
+      「初回だけ安い」ことを小さく書く手法は行政処分の対象になっている（RAG外。法令チェックで扱う）。
+    merged_from: [CORE-010, OFR-001, OFR-002, OFR-008, RISK-006]
     confidence: high
     status: draft
 
@@ -332,7 +361,7 @@ principles:
     anti_patterns:
       - プランA/B/Cから選ばせる
     check: 申込エリアの商品・プラン選択肢が1つか
-    merged_from: [CORE-009, STRUC-004, OFR-003]
+    merged_from: [CORE-009, STRUC-004, OFR-003, RISK-004]
     confidence: high
     status: draft
 
@@ -350,7 +379,8 @@ principles:
       - 購入ボタンの後に商品選択や確認で3〜4画面遷移させる
       - 重い画像で表示が遅い
     check: CTAから購入完了までのクリック数とページ遷移数。モバイルの表示速度（Lighthouse の LCP など）
-    merged_from: [CORE-009, STRUC-003, DES-006, OFR-005]
+    notes: 1ページ完結でも、定期購入の場合は特商法の最終確認画面の表示要件を満たす必要がある（RAG外。OFR-TRIAL-PRICE 参照）
+    merged_from: [CORE-009, STRUC-003, DES-006, OFR-005, RISK-004]
     confidence: high
     status: draft
 
@@ -367,7 +397,7 @@ principles:
     anti_patterns:
       - フォームにクーポンコード入力欄がある
     check: フォームにクーポン・プロモコード入力欄がないか
-    merged_from: [CORE-009, STRUC-007, OFR-004]
+    merged_from: [CORE-009, STRUC-007, OFR-004, RISK-004]
     confidence: high
     status: draft
 
@@ -401,7 +431,7 @@ principles:
     anti_patterns:
       - 入力項目の多い従来型フォームのみ
     check: 導入する場合、通常フォームとのABテストで効果を検証しているか
-    notes: ソースでは競合（DUO）の事例として語られており、Gemini が「常に」と一般化している。任意部品としてテスト対象にするのが妥当
+    notes: ソースでは競合（DUO）の事例として語られており、Gemini が「常に」と一般化している。任意部品としてテスト対象にする。ツールの選定情報はソースに無い（GAP-TOOLS）
     merged_from: [FV-008, STRUC-006, DES-005, OFR-006]
     confidence: medium
     status: draft
@@ -427,19 +457,40 @@ principles:
     stage: operation
     scope: core
     title: 要素を1つずつ差し替えるテストを週単位で回し続け、勝ち要素を組み上げる
-    statement: 画像・キャッチコピーなど要素を分けて、1回のテストでは1要素だけ変える。週ごと（または一定販売数ごと、例：1000個）にテストを回し続け、勝った要素を組み合わせて「最強のLP」にしていく。
+    statement: 画像・キャッチコピーなど要素を分けて、1回のテストでは1要素だけ変える。週ごと、または一定販売数ごと（例：1000個）に判定し、勝った要素を組み合わせて「最強のLP」にしていく。CVRを0.1%単位で積み上げる。
     rationale: 一度作って終わりではなく、更新し続けることでCVRの高いLPになるため。全要素を一度に変えると何が効いたかわからなくなるため。
     evidence:
       - "この週は画像をやりましょうでこの週は文字をやりましょうとか常にサイトのアップデートカスタマイズやってます 1週間ごとに"
+      - "1000個売れた時点で一番効率が良いところを採用しようとかそう言うの常やってました"
+      - "cvrを本当に0.1%ずつ改善していって…今では当初の本当に何倍にもなっている"
       - "何を一番使えばお客さんに響くか そのパズルが組み合わさった最強のサイトができます"
     applies_when: 公開後の運用全般
     anti_patterns:
       - 一度作ったLPを放置する
       - 複数要素を同時に変えて原因がわからなくなる
-    check: 実験記録で、1実験あたりの変更要素が1つか。実験が継続的に回っているか
-    notes: 勝敗判定の統計ルール（必要サンプル数・有意水準）はソースに無い。Step 8 で別途設計する
-    merged_from: [CORE-013, FV-007]
+      - 判定基準を決めずにテストを始める
+    check: 実験記録で、1実験あたりの変更要素が1つか。判定基準が事前に記録されているか。実験が継続的に回っているか
+    notes: |
+      「1週間」「1000個」は大量に売れている事業での経験則。流量の少ない事業では週次判定は誤判定（偶然の差を勝ちと判断）を招く。
+      判定の統計ルールはソースに無いため Step 8 で ADR 化する（GAP-AB-STATS）。
+    merged_from: [CORE-013, FV-007, OPS-004, OPS-009]
     confidence: high
+    status: draft
+
+  - id: OPS-CAPACITY-CHECK
+    stage: operation
+    scope: optional
+    title: 集客を増やす前に、受け入れ側の処理能力を確認する
+    statement: 広告予算を増やす前に、在庫・出荷、予約枠、提携先の対応件数など、増えた注文や問い合わせを受けきれるかを確認する。
+    rationale: 集客に成功しても受け入れが追いつかないと、対応不能や数ヶ月の予約待ちが起き、機会損失と満足度低下を招くため。
+    evidence:
+      - "大盛況すぎてそれを受け入れる歯医者さんが追いつかない…患者さんも本当に数ヶ月待っていただくような状況"
+    applies_when: 予約型サービス、在庫に限りのある物販、提携先に依存する事業
+    anti_patterns:
+      - 受け入れ能力を無視して広告だけを急拡大する
+    check: 予算増額の判断記録に、受け入れ能力（在庫・予約枠など）の確認があるか
+    merged_from: [RISK-009]
+    confidence: medium
     status: draft
 
   # ---------------------------------------------------------------- 構成テンプレート
@@ -458,8 +509,8 @@ principles:
     check: セクションがこの順で存在するか（任意部品を除く）
     notes: |
       ソースに明示された「推奨構成」ではなく、Gemini が複数の原則をつなげて作った合成である（confidence: low）。
-      お客様の声・FAQ・保証・CTAの回数や位置など、一般的なLPにある要素がソースに登場しない。
-      STR-IMITATE-WINNERS に従い、実際の構成は競合LPの分析で決め、このテンプレートは最低限の必須要素の確認に使う案。
+      お客様の声・FAQ・保証・CTAの回数や位置など、一般的なLPにある要素がソースに登場しない（GAP-STRUCTURE）。
+      STR-IMITATE-WINNERS に従い、実際の構成は競合LPの分析で決め、このテンプレートは最低限の必須要素の確認に使う。
     merged_from: [STRUC-TEMPLATE]
     confidence: low
     status: draft
@@ -476,7 +527,9 @@ principles:
     anti_patterns:
       - 知識の少ない人をいきなり販売LPに送る
     check: 対象商材の場合、記事LP→販売LPの2段構成を選択肢として生成できるか
-    notes: 根拠はSEO記事の事例が中心で、「記事LP」自体の言及は字幕が崩れており曖昧
+    notes: |
+      根拠はSEO記事の事例が中心で、「記事LP」自体の言及は字幕が崩れており曖昧。構成方法はソースに無い（GAP-ARTICLE-LP）。
+      記事LPは広告であることを明示する必要がある（ステルスマーケティング規制。RAG外）。
     merged_from: [STRUC-008]
     confidence: low
     status: draft
@@ -484,8 +537,8 @@ principles:
 # ------------------------------------------------------------------ 参考（採点対象外）
 reference:
   - id: REF-INHOUSE
-    title: LP制作は制作会社に丸投げせず、内製するかコンペで優秀な個人に依頼する
-    merged_from: [CORE-004, CORE-005, DES-002]
+    title: LP制作・改善は制作会社に丸投げせず、内製するかコンペで優秀な個人に依頼する
+    merged_from: [CORE-004, CORE-005, DES-002, OPS-008, RISK-001]
     reason: 組織・発注方針。このハーネス自体が「内製化」の手段にあたる
   - id: REF-MARKET-TIMING
     title: 誰かが儲かり始めた直後の市場に参入する
@@ -496,13 +549,98 @@ reference:
     merged_from: [STR-011]
     reason: 事業戦略
   - id: REF-SEO-CONTENT
-    title: 顧客の悩みに答えるSEO記事を大量に作る（月150本の事例）
-    merged_from: [STR-007, COPY-010]
+    title: 顧客の悩みに答えるSEO記事を内製で大量に作る（月150本の事例、外部業者に5年で約1億円払って効果なし）
+    merged_from: [STR-007, COPY-010, RISK-008]
     reason: LP外の集客チャネル。将来の拡張候補
   - id: REF-AD-CREATIVE-REFRESH
     title: 広告クリエイティブは飽きられるので高頻度で入れ替える
-    merged_from: [DES-008]
+    merged_from: [DES-008, OPS-006]
     reason: 広告運用。スコープ外だが、広告を扱う段階で core に昇格する候補
+  - id: REF-AD-TARGETING
+    title: 成約しない検索キーワードを除外し、成約率の高い属性に配信を寄せる
+    merged_from: [OPS-010]
+    reason: 広告運用。スコープ外
+  - id: REF-CRM-LIST
+    title: LINE・メルマガの既存登録者に配信シナリオを設計して売上を掘り起こす
+    merged_from: [OPS-011]
+    reason: CRM。スコープ外だが、LP公開後の次の拡張候補
+  - id: REF-OEM
+    title: OEMの場合、製造販売元の表示から模倣されるため、自社で製造販売業の許可を取る
+    merged_from: [RISK-005]
+    reason: 商品開発・許認可。製造販売元の表示は法定表示であり、表示を隠す方向の解釈は誤り（RAG外）
+
+# ------------------------------------------------------------------ 事例（数値の参考。合格基準には使わない）
+cases:
+  - id: CASE-PROFIT-5X
+    summary: 広告設定の見直し・FVのABテスト・離脱箇所への4コマ漫画などを積み重ね、4ヶ月で利益5倍
+    metrics: {period: 4ヶ月, profit: 5倍}
+    merged_from: [OPS-009]
+  - id: CASE-AD-EFFICIENCY
+    summary: 除外キーワードと属性分析で、新規獲得数23%増・獲得単価18%減、キャンセル減
+    metrics: {new_customers: +23%, cpa: -18%}
+    merged_from: [OPS-009, OPS-010]
+  - id: CASE-WARNING-CONTENT
+    summary: 業界の注意喚起を公式サイトで訴求し、問い合わせ1日128件、滞在時間35%増
+    metrics: {inquiries_per_day: 128, time_on_site: +35%}
+    merged_from: [COPY-007, OPS-009]
+
+# ------------------------------------------------------------------ 知識の欠落（RAGに無い領域）
+# origin: rag = Gemini が自ら欠落と申告 / harness = 責任者が統合作業で発見
+gaps:
+  - id: GAP-LEGAL-LINE
+    title: 薬機法・景表法で「どこまで言えるか」の具体的な線引きとチェック手順
+    origin: rag
+    merged_from: [RISK-GAP-001]
+    impact: 法令チェック（Step 5）の中核。RAGでは埋まらない
+  - id: GAP-OEM-LICENSE
+    title: 製造販売業の許可取得の手続き・費用
+    origin: rag
+    merged_from: [RISK-GAP-002]
+    impact: スコープ外（参考）
+  - id: GAP-HIRING
+    title: 内製チームの採用基準・報酬
+    origin: rag
+    merged_from: [RISK-GAP-003]
+    impact: スコープ外（参考）
+  - id: GAP-AB-STATS
+    title: ABテストの必要サンプル数・判定の統計ルール
+    origin: rag
+    merged_from: [RISK-GAP-004]
+    impact: 運用改善（Step 8）の中核
+  - id: GAP-TOOLS
+    title: チャットボット・ヒートマップ・決済ツールの選定
+    origin: rag
+    merged_from: [RISK-GAP-005]
+    impact: Build・Measure（Step 4, 7）
+  - id: GAP-ARTICLE-LP
+    title: 記事LPの構成・書き方
+    origin: rag
+    merged_from: [RISK-GAP-006]
+    impact: 任意部品
+  - id: GAP-STRUCTURE
+    title: お客様の声・FAQ・保証など、一般的なLPセクションの扱い
+    origin: harness
+    impact: 構成（Step 3）
+  - id: GAP-CTA
+    title: CTAボタンの文言・位置・回数
+    origin: harness
+    impact: コピー・Build（Step 3, 4）
+  - id: GAP-FORM
+    title: フォームの入力項目数・エラー表示
+    origin: harness
+    impact: Build（Step 4）
+  - id: GAP-VISUAL
+    title: フォント・配色・画像の仕様
+    origin: harness
+    impact: Build（Step 4）
+  - id: GAP-TOKUSHOHO
+    title: 特定商取引法（定期購入の最終確認画面）、打消し表示、ステマ規制
+    origin: harness
+    impact: 法令チェック（Step 5）
+  - id: GAP-RESEARCH-METHOD
+    title: 競合LPの具体的な集め方・分析の観点（「広告代理店に聞く」以外）
+    origin: harness
+    impact: Research（Step 6）。ハーネスの中核工程なのに手順がソースに無い
 
 # ------------------------------------------------------------------ 却下候補
 rejected:

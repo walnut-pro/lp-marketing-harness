@@ -1,7 +1,7 @@
 """原則カタログの整合性チェック。
 
 - YAML として読めること
-- knowledge/raw/ の全 ID が principles / reference / rejected のどこかに割り当てられていること
+- knowledge/raw/ の全 ID が principles / reference / cases / gaps / rejected のどこかに割り当てられていること
 - 必須フィールドと列挙値が正しいこと
 """
 import glob
@@ -25,6 +25,7 @@ ENUMS = {
 def main() -> int:
     catalog = yaml.safe_load(CATALOG.read_text())
     principles, reference, rejected = catalog["principles"], catalog["reference"], catalog["rejected"]
+    cases, gaps = catalog.get("cases", []), catalog.get("gaps", [])
     errors = []
 
     for p in principles:
@@ -35,7 +36,7 @@ def main() -> int:
             if key in p and p[key] not in allowed:
                 errors.append(f"{p['id']}: {key}={p[key]!r} not in {sorted(allowed)}")
 
-    ids = [p["id"] for p in principles + reference + rejected]
+    ids = [p["id"] for p in principles + reference + rejected + cases + gaps]
     dupes = {i for i in ids if ids.count(i) > 1}
     if dupes:
         errors.append(f"duplicate ids: {sorted(dupes)}")
@@ -43,7 +44,8 @@ def main() -> int:
     raw = set()
     for f in glob.glob(str(ROOT / "knowledge/raw/P*.md")):
         raw |= set(re.findall(r"^- id: (\S+)", Path(f).read_text(), re.M))
-    covered = {i for p in principles + reference for i in p["merged_from"]} | {r["id"] for r in rejected}
+    covered = {i for p in principles + reference + cases + gaps for i in p.get("merged_from", [])}
+    covered |= {r["id"] for r in rejected}
     if raw - covered:
         errors.append(f"raw ids not covered: {sorted(raw - covered)}")
     if covered - raw:
@@ -51,14 +53,16 @@ def main() -> int:
 
     meta = catalog["meta"]
     counts = {"raw_items": len(raw), "merged_principles": len(principles),
-              "reference_items": len(reference), "rejected_items": len(rejected)}
+              "reference_items": len(reference), "rejected_items": len(rejected),
+              "cases": len(cases), "gaps": len(gaps)}
     for key, n in counts.items():
         if meta.get(key) != n:
             errors.append(f"meta.{key}={meta.get(key)} but actual {n}")
 
     for e in errors:
         print("ERROR:", e)
-    print(f"raw={len(raw)} principles={len(principles)} reference={len(reference)} rejected={len(rejected)}")
+    print(f"raw={len(raw)} principles={len(principles)} reference={len(reference)} "
+          f"rejected={len(rejected)} cases={len(cases)} gaps={len(gaps)}")
     return 1 if errors else 0
 
 
