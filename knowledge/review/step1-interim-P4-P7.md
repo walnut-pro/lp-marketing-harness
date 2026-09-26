@@ -1,7 +1,7 @@
 # Step 1 中間レビュー（P4〜P7 受領分）と統合カタログ v0.1
 
 - 受領: P4 STRUC（10件）/ P5 COPY（10件）/ P6 DES（9件）/ P7 OFR（8件）→ `knowledge/raw/P4.md`〜`P7.md`
-- 累計 71件 → **統合カタログ `knowledge/principles/catalog.draft.yaml`**: 原則26件（core 20 / optional 6）＋参考5件＋却下候補1件
+- 累計 71件 → **統合カタログ `knowledge/principles/catalog.yaml`**: 原則26件（core 20 / optional 6）＋参考5件＋却下候補1件
 - 整合性チェック: `python3 scripts/validate_catalog.py`（71件すべてがどこかに割り当て済み）
 - 未受領: P8 OPS、P9 RISK
 

@@ -12,13 +12,16 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-CATALOG = ROOT / "knowledge/principles/catalog.draft.yaml"
-REQUIRED = ["id", "stage", "scope", "title", "statement", "applies_when", "check", "merged_from", "confidence", "status"]
+CATALOG = ROOT / "knowledge/principles/catalog.yaml"
+REQUIRED = ["id", "stage", "used_in", "scope", "title", "statement", "rationale", "applies_when",
+            "check", "check_type", "merged_from", "confidence", "status"]
+PIPELINE = {"brief", "research", "strategy", "structure", "copy", "build", "review", "publish", "operate"}
 ENUMS = {
     "stage": {"research", "strategy", "structure", "copy", "design", "offer", "operation"},
     "scope": {"core", "optional"},
     "confidence": {"high", "medium", "low"},
     "status": {"draft", "approved", "rejected"},
+    "check_type": {"rule", "llm", "metric", "process"},
 }
 
 
@@ -35,6 +38,15 @@ def main() -> int:
         for key, allowed in ENUMS.items():
             if key in p and p[key] not in allowed:
                 errors.append(f"{p['id']}: {key}={p[key]!r} not in {sorted(allowed)}")
+
+    for p in principles:
+        bad = set(p.get("used_in", [])) - PIPELINE
+        if bad:
+            errors.append(f"{p['id']}: unknown used_in {sorted(bad)}")
+    for g in gaps:
+        bad = set(g.get("affects", [])) - PIPELINE
+        if bad:
+            errors.append(f"{g['id']}: unknown affects {sorted(bad)}")
 
     ids = [p["id"] for p in principles + reference + rejected + cases + gaps]
     dupes = {i for i in ids if ids.count(i) > 1}

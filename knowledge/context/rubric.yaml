@@ -1,0 +1,344 @@
+# 自動生成: scripts/build_context.py。直接編集しないこと
+# severity: must = 必須（core） / should = 適用条件を満たす場合に必須（optional）
+# check_type: rule = 機械判定 / llm = LLM判定 / metric = 計測データ / process = 手順・記録
+version: '0.3'
+items:
+- id: R-BASE-LP-FORMAT
+  principle: BASE-LP-FORMAT
+  title: 縦長1ページのLPで売り、ブランドサイトでは売らない
+  check: 購入完了までのページ遷移が0回か。外部ページへのリンクが購入導線上にないか
+  check_type: rule
+  stages:
+  - structure
+  - build
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-BASE-KPI-CVR
+  principle: BASE-KPI-CVR
+  title: LPの良し悪しはCVR（成約率）だけで判断する
+  check: 実験の勝敗判定がCVRで行われているか
+  check_type: metric
+  stages:
+  - operate
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-BASE-DATA-OVER-TASTE
+  principle: BASE-DATA-OVER-TASTE
+  title: 主観を入れず、複数パターンを数値で機械的に選ぶ
+  check: 採用判断の記録に数値根拠があるか（主観的な理由のみの採用がないか）
+  check_type: process
+  stages:
+  - review
+  - operate
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-BASE-SELL-NOT-LOVE
+  principle: BASE-SELL-NOT-LOVE
+  title: 「良い商品だから売れる」と考えず、売り方（成約）を最優先する
+  check: 本文のうち商品スペック説明と顧客ベネフィットの比率（スペック偏重でないか）
+  check_type: llm
+  stages:
+  - brief
+  - strategy
+  - copy
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-BASE-NO-LEAKY-BUCKET
+  principle: BASE-NO-LEAKY-BUCKET
+  title: LPのCVRが確認できるまで大きな集客をしない
+  check: 公開手順に「少額配信でCVRを確認 → 予算増額」の段階があるか
+  check_type: process
+  stages:
+  - publish
+  - operate
+  severity: must
+  applies: always
+  applies_when: 集客を行うすべてのLP
+  confidence: high
+- id: R-STR-IMITATE-WINNERS
+  principle: STR-IMITATE-WINNERS
+  title: 今売れている競合LPを複数集めて構成を真似し、それを上回る
+  check: 構成案に参照した競合LP（2件以上）と、各競合に対する上回りポイントが記録されているか
+  check_type: process
+  stages:
+  - research
+  - strategy
+  - structure
+  severity: must
+  applies: always
+  applies_when: LPの初期構成を決めるとき
+  confidence: high
+- id: R-STR-RELATIVE-ADVANTAGE
+  principle: STR-RELATIVE-ADVANTAGE
+  title: 比較される前提で「他社より優れている点」を設計する
+  check: 競合比較表（価格・初回条件・権威性・訴求）があり、自社が勝つ項目が明示されているか
+  check_type: llm
+  stages:
+  - research
+  - strategy
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-STR-CURATE-INFO
+  principle: STR-CURATE-INFO
+  title: ゼロから書かず、世の中の情報を集めて分かりやすく整理する
+  check: 本文の主張ごとにリサーチ結果（出典）が紐づいているか
+  check_type: llm
+  stages:
+  - research
+  - copy
+  severity: must
+  applies: always
+  applies_when: リサーチ・本文作成時
+  confidence: medium
+- id: R-FV-TOP-PRIORITY
+  principle: FV-TOP-PRIORITY
+  title: 改善はFVを最優先し、次に離脱が最も多い箇所（フォーム手前）に取り組む
+  check: 改善テストの対象順が「FV → 計測上の離脱最大箇所」になっているか
+  check_type: process
+  stages:
+  - copy
+  - operate
+  severity: must
+  applies: always
+  applies_when: 改善の優先順位を決めるとき
+  confidence: high
+- id: R-FV-BENEFIT-AT-GLANCE
+  principle: FV-BENEFIT-AT-GLANCE
+  title: 初見客がFVを一目見て「買うと何が得られるか」わかるようにする
+  check: FVの見出しに具体的なベネフィット（得られる結果）が含まれるか。商品を知らない評価者が5秒で説明できるか
+  check_type: llm
+  stages:
+  - strategy
+  - copy
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-FV-NO-JARGON
+  principle: FV-NO-JARGON
+  title: 認知度の低い成分名・専門用語だけで訴求しない
+  check: FVの見出しが専門用語のみで構成されていないか
+  check_type: llm
+  stages:
+  - copy
+  - review
+  severity: must
+  applies: always
+  applies_when: 一般消費者向けの商品
+  confidence: high
+- id: R-FV-AUTHORITY
+  principle: FV-AUTHORITY
+  title: 権威性（特許・大学教授の推薦・論文など）をFVの目立つ位置と本文で示す
+  check: Brief に権威性素材がある場合、FVに表示されているか。表示内容が Brief の証拠と一致しているか
+  check_type: llm
+  stages:
+  - brief
+  - copy
+  - build
+  - review
+  severity: must
+  applies: always
+  applies_when: 信頼が重要な商材（化粧品・サプリ・医療・高額サービス）で、実際の権威性素材がある場合
+  confidence: high
+- id: R-FV-LEGAL-MAX
+  principle: FV-LEGAL-MAX
+  title: 薬機法・景表法の範囲内で、効果効能を最大限はっきり伝える
+  check: 法令NG表現の検出が0件か。NG表現には言い換え案が提示されているか
+  check_type: llm
+  stages:
+  - copy
+  - review
+  severity: must
+  applies: always
+  applies_when: 化粧品・健康食品・医療美容など法規制のある商材
+  confidence: high
+- id: R-FV-FOUR-VARIANTS
+  principle: FV-FOUR-VARIANTS
+  title: FVの画像とキャッチコピーは方向性の違う4パターンを作ってテストする
+  check: FVの画像・コピーがそれぞれ4案あり、案同士の訴求の方向性が異なるか
+  check_type: rule
+  stages:
+  - strategy
+  - copy
+  - build
+  - operate
+  severity: must
+  applies: always
+  applies_when: FVの制作・改善時
+  confidence: high
+- id: R-COPY-WARNING-EDUCATION
+  principle: COPY-WARNING-EDUCATION
+  title: 業界の注意点や粗悪な競合のトラブルを伝え、信頼を得る
+  check: 注意喚起セクションが事実に基づき、特定企業を誹謗していないか
+  check_type: llm
+  stages:
+  - research
+  - copy
+  - review
+  severity: should
+  applies: conditional
+  applies_when: 粗悪・誤解を招く競合が存在する業界
+  confidence: medium
+- id: R-COPY-WHY-CHEAP
+  principle: COPY-WHY-CHEAP
+  title: 「高品質なのに安い理由」を仕組みで説明する
+  check: 価格優位を主張する場合、その理由が本文にあるか
+  check_type: llm
+  stages:
+  - copy
+  - review
+  severity: should
+  applies: conditional
+  applies_when: 高品質かつ低価格を売りにする商材
+  confidence: medium
+- id: R-OFR-TRIAL-PRICE
+  principle: OFR-TRIAL-PRICE
+  title: 初回はお試し価格にし、リピートで利益を回収する（それが可能な原価構成にする）
+  check: Brief に初回価格・通常価格・原価・送料があり、初回価格が「原価＋送料」以上かつ通常価格より低いか。成り立たない場合は Brief の段階で警告する
+  check_type: rule
+  stages:
+  - brief
+  - strategy
+  - review
+  severity: must
+  applies: always
+  applies_when: リピートが見込める商材（化粧品・サプリ・定期購入）
+  confidence: high
+- id: R-OFR-SINGLE-OFFER
+  principle: OFR-SINGLE-OFFER
+  title: 申込時の選択肢は1つに絞る
+  check: 申込エリアの商品・プラン選択肢が1つか
+  check_type: rule
+  stages:
+  - structure
+  - build
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-OFR-FEWEST-CLICKS
+  principle: OFR-FEWEST-CLICKS
+  title: 購入まで1ページで完結させ、クリックと読み込みを最小にする
+  check: CTAから購入完了までのクリック数とページ遷移数。モバイルの表示速度（Lighthouse の LCP など）
+  check_type: rule
+  stages:
+  - structure
+  - build
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-OFR-NO-COUPON-INPUT
+  principle: OFR-NO-COUPON-INPUT
+  title: クーポンコードを手入力させない
+  check: フォームにクーポン・プロモコード入力欄がないか
+  check_type: rule
+  stages:
+  - build
+  - review
+  severity: must
+  applies: always
+  applies_when: 常に
+  confidence: high
+- id: R-OFR-MANGA-BEFORE-FORM
+  principle: OFR-MANGA-BEFORE-FORM
+  title: 最も離脱が多い箇所（フォーム手前）に4コマ漫画を入れる
+  check: 計測で離脱が最も多いセクションを特定し、その直前に視覚的説明（漫画・図解）があるか
+  check_type: metric
+  stages:
+  - structure
+  - build
+  - operate
+  severity: should
+  applies: conditional
+  applies_when: サービス内容の理解が難しく、フォーム手前での離脱が多い場合（予約型サービス等）
+  confidence: medium
+- id: R-OFR-CHATBOT
+  principle: OFR-CHATBOT
+  title: チャットボット形式で1画面のまま注文できるようにする
+  check: 導入する場合、通常フォームとのABテストで効果を検証しているか
+  check_type: process
+  stages:
+  - build
+  - operate
+  severity: should
+  applies: conditional
+  applies_when: フォーム入力の離脱が多い場合、ネット操作に不慣れな層が対象の場合
+  confidence: medium
+- id: R-DES-MOTION-FV
+  principle: DES-MOTION-FV
+  title: FV付近に使用イメージの動画を置く
+  check: 動画を置く場合、遅延読み込みで表示速度を落としていないか
+  check_type: rule
+  stages:
+  - build
+  - review
+  severity: should
+  applies: conditional
+  applies_when: 使用感や変化を映像で見せられる商材
+  confidence: medium
+- id: R-OPS-ELEMENT-TESTING
+  principle: OPS-ELEMENT-TESTING
+  title: 要素を1つずつ差し替えるテストを週単位で回し続け、勝ち要素を組み上げる
+  check: 実験記録で、1実験あたりの変更要素が1つか。判定基準が事前に記録されているか。実験が継続的に回っているか
+  check_type: process
+  stages:
+  - build
+  - operate
+  severity: must
+  applies: always
+  applies_when: 公開後の運用全般
+  confidence: high
+- id: R-OPS-CAPACITY-CHECK
+  principle: OPS-CAPACITY-CHECK
+  title: 集客を増やす前に、受け入れ側の処理能力を確認する
+  check: 予算増額の判断記録に、受け入れ能力（在庫・予約枠など）の確認があるか
+  check_type: process
+  stages:
+  - brief
+  - publish
+  - operate
+  severity: should
+  applies: conditional
+  applies_when: 予約型サービス、在庫に限りのある物販、提携先に依存する事業
+  confidence: medium
+- id: R-STRUC-TEMPLATE-V0
+  principle: STRUC-TEMPLATE-V0
+  title: LP構成テンプレート（暫定）
+  check: セクションがこの順で存在するか（任意部品を除く）
+  check_type: rule
+  stages:
+  - structure
+  - review
+  severity: must
+  applies: always
+  applies_when: 販売用LP
+  confidence: low
+- id: R-STRUC-ARTICLE-LP
+  principle: STRUC-ARTICLE-LP
+  title: 比較検討が必要な商材では、記事型LPを挟んでから販売LPへ送る
+  check: 対象商材の場合、記事LP→販売LPの2段構成を選択肢として生成できるか
+  check_type: llm
+  stages:
+  - strategy
+  - structure
+  severity: should
+  applies: conditional
+  applies_when: 比較検討が長い商材・医療系サービス
+  confidence: low
